@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+#
+
+$| = 1;
+
+$cdir = "obj";
+
+$f1 = "PandA-bambu.cppcheck";
+$f2 = ".gitignore";
+
+if (!(-f $f1)) {
+  die "No file '$f1'. Is this a PandA source directory?\n";
+}
+if (!(-f $f2)) {
+  die "No file '$f2'. Is this a PandA source directory?\n";
+}
+
+if (!(-d $cdir)) {
+  die "No directory '$cdir' to clean.\n";
+}
+
+opendir($DIR, $cdir);
+while ($elem = readdir($DIR)) {
+  if ($elem =~ m/^\./) {
+  } elsif ($elem =~ m/ /) {
+  } elsif (-f "$cdir/$elem") {
+    print "unlink($cdir/$elem)\n";
+    unlink("$cdir/$elem");
+  } elsif (-d "$cdir/$elem") {
+    print "rm -rf '$cdir/$elem'\n";
+    system('rm', '-rf', "$cdir/$elem");
+  }
+}
+closedir($DIR);

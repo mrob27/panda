@@ -1,0 +1,40 @@
+#!/usr/bin/env perl
+#
+
+$hd = $ENV{"HOME"};
+
+$| = 1;
+
+$cdir = "obj";
+
+$f1 = "PandA-bambu.cppcheck";
+$f2 = ".gitignore";
+
+if (!(-f $f1)) {
+  die "No file '$f1'. Is this a PandA source directory?\n";
+}
+if (!(-f $f2)) {
+  die "No file '$f2'. Is this a PandA source directory?\n";
+}
+
+if (!(-d $cdir)) {
+  die "No directory '$cdir', please create it first.\n";
+}
+chdir($cdir);
+
+$gcc8 = "$hd/gcc-8/bin/bin/gcc";
+if (!(-x $gcc8)) {
+  die "No executable '$gcc8'\n";
+}
+
+$clang11 = "$hd/clang11/build/inst/bin/clang";
+if (!(-x $clang11)) {
+  die "No executable '$clang11'\n";
+}
+
+$PANDA="$hd/panda";
+
+$cmd = "../configure --prefix=$PANDA/inst --enable-opt --enable-release"
+     . " --with-gcc8=$gcc8 --with-clang11=$clang11";
+print "$cmd\n";
+# system($cmd);
