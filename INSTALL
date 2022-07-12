@@ -600,17 +600,49 @@ FloPoCo is currently not supported by bambu under CentOS 7.
 Fedora
 ***************
 
-The following packages have to be installed under Fedora 23 (64 bit) to compile PandA:
-sudo dnf install autoconf autoconf-archive libtool boost-devel mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64 gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686 glibc-devel.i686 libgcc.i686 make suitesparse-static libtool-ltdl-devel glpk-devel gawk
+The following packages have to be installed to compile PandA: (use the
+list for your Fedora version):
 
-The following packages have to be installed under Fedora 24 (64 bit) to compile PandA:
-sudo dnf install autoconf autoconf-archive libtool boost-devel mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64 gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686 glibc-devel.i686 libgcc.i686 make suitesparse-static libtool-ltdl-devel glpk-devel gawk which
+Fedora 23 (64 bit)
+  sudo dnf install autoconf autoconf-archive libtool boost-devel
+mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen
+graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64
+gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686
+glibc-devel.i686 libgcc.i686 make suitesparse-static
+libtool-ltdl-devel glpk-devel gawk
 
-The following packages have to be installed under Fedora 25 (64 bit) to compile PandA:
-sudo dnf install autoconf autoconf-archive libtool boost-devel mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64 gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686 glibc-devel.i686 libgcc.i686 make suitesparse-static libtool-ltdl-devel glpk-devel gawk
+Fedora 24 (64 bit):
+  sudo dnf install autoconf autoconf-archive libtool boost-devel
+mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen
+graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64
+gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686
+glibc-devel.i686 libgcc.i686 make suitesparse-static
+libtool-ltdl-devel glpk-devel gawk which
 
-The following packages have to be installed under Fedora 29 (64 bit) to compile PandA:
-sudo dnf install autoconf autoconf-archive libtool boost-devel mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64 gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686 glibc-devel.i686 libgcc.i686 make suitesparse-static libtool-ltdl-devel glpk-devel gawk clang clang-devel llvm llvm-devel
+Fedora 25 (64 bit):
+  sudo dnf install autoconf autoconf-archive libtool boost-devel
+mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen
+graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64
+gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686
+glibc-devel.i686 libgcc.i686 make suitesparse-static
+libtool-ltdl-devel glpk-devel gawk
+
+Fedora 29 (64 bit):
+  sudo dnf install autoconf autoconf-archive libtool boost-devel
+mpfr-devel xml2 lzma-devel mpfi-devel zlib-devel bison flex doxygen
+graphviz iverilog verilator gcc gcc-c++ gcc-plugin-devel.x86_64
+gcc-plugin-devel.i686 libxml2-devel glibc glibc-devel glibc.i686
+glibc-devel.i686 libgcc.i686 make suitesparse-static
+libtool-ltdl-devel glpk-devel gawk clang clang-devel llvm llvm-devel
+
+Fedora 35 (64 bit): use "sudo dnf install ..."
+ autoconf autoconf-archive bison boost-devel clang clang-devel doxygen
+flex gawk gcc gcc-c++ gcc-plugin-devel.x86_64 gcc-plugin-devel.i686
+glibc glibc-devel glibc.i686 glibc-devel.i686 glpk-devel graphviz
+iverilog libgcc.i686 libtool libtool-ltdl-devel libxml2-devel llvm
+llvm-devel make mpfi-devel suitesparse-static verilator xml2 xz-devel
+zlib-devel
+
 
 ArchLinux
 *************
