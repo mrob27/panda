@@ -11,7 +11,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([configure.ac])
 
 AC_DISABLE_SHARED
-#AC_DISABLE_STATIC
+AC_DISABLE_STATIC
 AC_CONFIG_MACRO_DIR(etc/macros)
 
 #Flags have to be emptied since AC_PROG_CXX and AC_PROG_CC set them to "-g -O2"
@@ -2483,8 +2483,12 @@ if test "x$panda_USE_I386_GCC" = xyes; then
    AC_CHECK_CLANG12_I386_VERSION($MIN_CLANG_VERSION,$MAX_CLANG_VERSION,$EXTRA_CLANG_OPTIONS)
    AC_CHECK_CLANGVVD_I386_VERSION($MIN_CLANG_VERSION,$MAX_CLANG_VERSION,$EXTRA_CLANG_OPTIONS)
 
-   if test "x$I386_GCC45_PLUGIN_COMPILER" = x && test "x$I386_GCC46_PLUGIN_COMPILER" = x && test "x$I386_GCC47_PLUGIN_COMPILER" = x && test "x$I386_GCC48_PLUGIN_COMPILER" = x && test "x$I386_GCC49_PLUGIN_COMPILER" = x && test "x$I386_GCC5_PLUGIN_COMPILER" = x && test "x$I386_GCC6_PLUGIN_COMPILER" = x && test "x$I386_GCC7_PLUGIN_COMPILER" = x && test "x$I386_GCC8_PLUGIN_COMPILER" = x && test "x$I386_CLANG4_PLUGIN_COMPILER" = x && test "x$I386_CLANG5_PLUGIN_COMPILER" = x && test "x$I386_CLANG6_PLUGIN_COMPILER" = x && test "x$I386_CLANG7_PLUGIN_COMPILER" = x && test "x$I386_CLANG8_PLUGIN_COMPILER" = x && test "x$I386_CLANG9_PLUGIN_COMPILER" = x && test "x$I386_CLANG10_PLUGIN_COMPILER" = x && test "x$I386_CLANG11_PLUGIN_COMPILER" = x && test "x$I386_CLANG12_PLUGIN_COMPILER" = x && test "x$I386_CLANGVVD_PLUGIN_COMPILER" = x; then
+   if test "x$I386_GCC45_PLUGIN_COMPILER" = x && test "x$I386_GCC46_PLUGIN_COMPILER" = x && test "x$I386_GCC47_PLUGIN_COMPILER" = x && test "x$I386_GCC48_PLUGIN_COMPILER" = x && test "x$I386_GCC49_PLUGIN_COMPILER" = x && test "x$I386_GCC5_PLUGIN_COMPILER" = x && test "x$I386_GCC6_PLUGIN_COMPILER" = x && test "x$I386_GCC7_PLUGIN_COMPILER" = x && test "x$I386_GCC8_PLUGIN_COMPILER" = x; then
       AC_MSG_ERROR("gcc with support to -m32 and plugin not found")
+   fi
+
+   if test "x$I386_CLANG4_PLUGIN_COMPILER" = x && test "x$I386_CLANG5_PLUGIN_COMPILER" = x && test "x$I386_CLANG6_PLUGIN_COMPILER" = x && test "x$I386_CLANG7_PLUGIN_COMPILER" = x && test "x$I386_CLANG8_PLUGIN_COMPILER" = x && test "x$I386_CLANG9_PLUGIN_COMPILER" = x && test "x$I386_CLANG10_PLUGIN_COMPILER" = x && test "x$I386_CLANG11_PLUGIN_COMPILER" = x && test "x$I386_CLANG12_PLUGIN_COMPILER" = x && test "x$I386_CLANGVVD_PLUGIN_COMPILER" = x; then
+      AC_MSG_ERROR("clang v4 through v11 not found")
    fi
 fi
 
@@ -2779,7 +2783,8 @@ AC_CONFIG_FILES(ext/Makefile)
 ################################################################################
 
 ############### Final check for static linking #############################################
-if test "x$panda_ALLSTATIC" = xyes ;then
+# if test "x$panda_ALLSTATIC" = xyes ;then
+if test "x$panda_ALLSTATIC" = yxyes ;then
   AM_LDFLAGS="-all-static -pthread";
   LDFLAGS+=" -static";
   AC_SUBST(AM_LDFLAGS)
