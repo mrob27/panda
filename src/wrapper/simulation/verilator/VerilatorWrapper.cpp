@@ -136,7 +136,8 @@ void VerilatorWrapper::GenerateScript(std::ostringstream& script, const std::str
       script << " --x-assign fast --x-initial fast --noassert";
    }
 #endif
-   script << " -LDFLAGS -static";
+   // LDFLAGS -static breaks everything on Fedora 35 (perhaps there is a rependency that can be dnf installed?)
+   // script << " -LDFLAGS -static";
    unsigned int nThreads = Param->getOption<bool>(OPT_verilator_parallel) ? std::thread::hardware_concurrency() : 1;
    if(nThreads > 1)
    {
