@@ -28,14 +28,26 @@ explains what steps to take:
        --with-gcc8=/path/to/bin/gcc \
        --with-clang11=/path/to/bin/clang
 
-Currently accepted parameters are:
+Currently accepted parameters include:
 
-  --enable-flopoco:  add floating point support by leveraging FloPoCo Library 
-                     http://flopoco.gforge.inria.fr/
-  --enable-debug  :  add debugging symbols to the binaries 
-  --enable-opt    :  Compile the framework with GCC optimizations enabled
-  --enable-release:  Remove further tests not useful in a production
-                     environment
+  --enable-flopoco  add floating point support by leveraging FloPoCo Library 
+                    http://flopoco.gforge.inria.fr/
+  --enable-xilinx   enable Xilinx RTL synthesis and simulation tools execution 
+  --enable-altera   enable Altera RTL synthesis tool execution
+  --enable-lattice  enable Lattice RTL synthesis tool execution
+  --enable-nanoxplore  enable BRAVE FPGA NanoXplore RTL synthesis tool
+  --enable-modelsim  enable Modelsim-based simulation directly within the
+                     framework
+  --with-mentor-license=<license-file/license-server>
+  --with-nanoxplore-license=<license-file/license-server>
+  --enable-icarus   enable Icarus-based simulation
+                    http://iverilog.icarus.com/
+  --enable-verilator  enable Verilator-based simulation
+                      http://www.veripool.org/wiki/verilator
+  --enable-debug    add debugging symbols to the binaries 
+  --enable-opt      Compile the framework with GCC optimizations enabled
+  --enable-release  Remove further tests not useful in a production environment
+
 
 Note that the scripts for synthesis and simulation are generated even
 if the corresponding tools are not configured as described above. In
@@ -65,7 +77,8 @@ which prints its built-in help.
 Additional documentation about the configuration, the execution of the
 test examples, and the creation of the basic documentation of the
 framework is part of this distribution, see the "Documentation"
-section below. Also, documentation can be found at:
+section below. Also, a different version of these INSTALL instructions
+(possibly with extra information) is at:
 http://panda.dei.polimi.it/?page_id=88
 
 
