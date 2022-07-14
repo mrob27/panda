@@ -27,7 +27,6 @@ explains what steps to take:
    $ ../configure [--enable-<ext-feature>...] --prefix=/opt/panda \
        --with-gcc8=/path/to/bin/gcc \
        --with-clang11=/path/to/bin/clang
-     
 
 Currently accepted parameters are:
 
@@ -69,29 +68,44 @@ framework is part of this distribution, see the "Documentation"
 section below. Also, documentation can be found at:
 http://panda.dei.polimi.it/?page_id=88
 
-Testcases
-*********
 
-In the directory examples, you can find several different testcases, with the 
-bash scripts for their execution.
+Test cases
+**********
 
-These scripts automatically create subdirectories containing all the results 
-of the execution. You can start from them to build your own hardware 
-accelerators with bambu.
+In the directory examples, you can find several different testcases,
+with the bash scripts for their execution.
 
+These scripts automatically create subdirectories containing all the
+results of the execution. You can start from them to build your own
+hardware accelerators with bambu.
 
 
 Documentation
 *************
 
-After configuring the framework in the directory for the building, you can
-create a preliminary documentation of the framework by executing the following 
-command:
+After configuring the framework in the directory for building, you can
+create documentation of the framework by executing the following
+commands:
+
   $ cd obj
   $ make documentation
 
 Then, you can start browsing the documentation from the file 
-  obj/doc/PANDA_html/index.html
+
+  obj/documentation/PANDA_html/index.html
+
+The tutorials are "ipynb" (Jupyter interactive Python notebook) files;
+however they can be converted into PDF. Use dnf, apt, yum, etc. to
+install the "jupyter" package, then convert a ipynb to PDF with the
+command:
+
+  $ jupyter nbconvert --to pdf bambu.ipynb
+
+If it fails and reports a missing LaTeX file (such as tcolorbox.sty)
+then you can install that LaTeX package and try again. For example,
+in Fedora systems use the command
+
+  $ sudo dnf install 'tex(tcolorbox.sty)'
 
 
 Ubuntu packages
@@ -197,6 +211,7 @@ libxml2-dev liblzma-dev libmpfi-dev zlib1g-dev libicu-dev bison
 doxygen flex graphviz iverilog verilator pkg-config libsuitesparse-dev
 libglpk-dev
 
+
 CentOS 6/Scientific Linux distributions
 *************
 
@@ -208,7 +223,7 @@ First, some dependencies need to be satisfied:
 autoconf-archive package is also required, but it is not present in CentOS repositories:
 
    $ wget ftp://ftp.pbone.net/mirror/ftp5.gwdg.de/pub/opensuse/repositories/home:/pelliott11:/autoconf-archive/CentOS_CentOS-6/noarch/autoconf-archive-2012.04.07-7.3.noarch.rpm
-   $sudo rpm -Uvh autoconf-archive-2012.04.07-7.3.noarch.rpm
+   $ sudo rpm -Uvh autoconf-archive-2012.04.07-7.3.noarch.rpm
 
 Then a recent version of boost has to be installed by hand.
 
@@ -262,6 +277,7 @@ An extra package is needed for Enterprise Linux (EPEL):
   sudo yum install epel-release
 
 FloPoCo is currently not supported by bambu under CentOS 7.
+
 
 Fedora
 ***************
@@ -318,6 +334,7 @@ suitesparse glpk readline
 
 A working configure example is:
   ../configure --prefix=$HOME/panda --enable-glpk --enable-opt --enable-flopoco --with-opt-level=fast
+
 
 Mac OSX
 *************
