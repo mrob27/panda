@@ -1,0 +1,302 @@
+#!/usr/bin/perl
+#
+$hd = $ENV{"HOME"};
+$g_self = $0;
+$bapropos = q@
+ccbot(1r) -- Robot to build robot-builders (GCC and Clang/LLVM)
+@;
+
+$help = qq`
+NAME
+
+  ccbot   - Robot to build robot-builders (GCC and Clang/LLVM)
+
+DESCRIPTION
+
+This script checks your environment and tries to locate existing
+compilers, whether installed in a standard way or built by a previous
+run of #ccbot#. It then presents a list of compilers (type and
+version) that it is able to build on your system, in user mode using
+subdirectories of your home ($hd).
+
+It has subcommands that perform some functions useful to itself and
+also generally useful in other situations.
+
+GLOBAL OPTIONS
+
+  -h  Show this help
+
+SUBCOMMANDS
+
+  -distro   Tell what type of OS we are running on, with a version number
+
+SEE ALSO
+
+  bdistro  - Show OS distribution and version
+
+`;
+
+$help = qq`
+
+INCOMPLETE
+
+#ccbot# is not yet finished, but for now use this command:
+
+  ccbot -help build
+
+to get instructions for building GCC 8 and LLVM 11.
+
+`;
+
+my $unused_block_header = q`
+
+REVISION HISTORY
+ 20220621 First version.
+
+`;
+
+$help_gcc_f35 = qq`
+
+Building GCC 8 on Fedora 35:
+*************************
+
+  cd
+  mkdir gcc8   # if you already have one, rename it first
+  cd gcc8
+  git clone 'https://github.com/gcc-mirror/gcc.git'
+  cd gcc
+  time git checkout eafe83f2f20    # tag "releases/gcc-8.5.0"
+  cd ..
+  mv gcc src
+  cd src
+  time ./contrib/download_prerequisites
+  cd ..
+  mkdir build
+  cd build
+  ../src/configure -v \
+    --build=x86_64-linux-gnu \
+    --disable-bootstrap \
+    --with-multilib-list=m32,m64 \
+    --enable-checking=release \
+    --enable-languages=c,c++,lto \
+    --prefix=$HOME/gcc8/bin \
+    --target=x86_64-linux-gnu \
+    --with-bugurl=file:///usr/share/doc/gcc-8/README.Bugs \
+    --with-gcc-major-version-only \
+    --with-pkgversion='Morobu-8.5.0' \
+    --with-system-zlib \
+    --without-cuda-driver \
+    --without-included-gettext
+  time make MAKEINFO=true
+  time make install
+
+If the 'make' succeeds, there will be an executable in
+../build/gcc/xgcc and if you run it with the --version option, it
+should print "xgcc (Morobu-8.5.0) 8.5.0".
+
+If the 'make install' succeeds, there will be an executable at
+../bin/bin/gcc that can be used to compile things.
+
+To 'clean' the GCC 8 directory, just remove everything inside the
+'build' subdirectory.
+
+
+Building Clang 11 on Fedora 35:
+*******************************
+
+  cd
+  mkdir clang11   # if you already have one, rename it first
+  mkdir llvm11-temp
+  cd llvm11-temp
+  git clone 'https://github.com/llvm/llvm-project.git'
+  cd
+  rmdir clang11
+  mv llvm11-temp/llvm-project ./clang11
+  rmdir llvm11-temp
+  cd clang11
+  time git checkout 43ff75f2c3fe    # tagged "llvmorg-11.0.1"
+  mkdir build
+  cd build
+  time cmake3 -G 'Unix Makefiles' -Wno-dev -DCMAKE_BUILD_TYPE=Release \
+    -DLLVM_ENABLE_PROJECTS=clang \
+    -DCMAKE_INSTALL_PREFIX=$HOME/clang11/inst \
+    -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1   ../llvm
+  time make
+  time make install
+  $HOME/clang11/build/inst/bin/clang --version  
+
+If the 'make' succeeds, there will be an executable in
+$HOME/clang11/build/bin/clang and if you run it with the --version
+option, it should print "clang version 11.0.1".
+
+If the 'make install' succeeds, there will be an executable at
+$HOME/clang11/inst/bin/clang that can be used to compile things.
+
+To 'clean' the Clang 11 directory, just remove everything inside the
+'build' subdirectory.
+
+`;
+
+$| = 1;
+
+sub self_bdistro
+{
+  $uns = `uname -s`; chomp $uns;
+  $unr = `uname -r`; chomp $unr;  # e.g. "12.6.0" or "5.17.5-200.fc35.x86_64"
+  if ($uns =~ m/Darwin/) {
+    if ($unr =~ m/^(\d+\.\d+)/) {
+      $unr = $1;
+      $sv = `SYSTEM_VERSION_COMPAT=1 sw_vers`;
+      # print "sv $sv unr $unr\n";
+      if ($sv =~ m/ProductVersion:[ \t]+\d+\.(\d+)/o) {
+        $sv = $1;
+        # print "-> sv $sv\n";
+      } else {
+        print "Darwin unknown\n"; exit(0);
+      }
+      # 10.1 Puma through 10.9 Mavericks
+      $mac = 10 + $sv/10;
+      # 10.10 Yosemite and later return 11.x
+      #   11.0 for Yosemite through 11.5 for Catalina
+      #   and 11.6 (NOT 12.0) for Big Sur
+    }
+    print "Darwin $mac\n";
+
+    # Finish now
+    exit(0);
+  }
+
+  # Not Darwin, assume Linux
+  print "Linux $unr  ";
+  if ($bin = "/usr/bin/lsb_release", (-x $bin)) {
+    system("$bin -a | egrep '^Description'");
+  } elsif ($pn = "/etc/redhat-release", ((-s $pn) < 1000)) {
+    system("cat $pn");
+  } elsif ($pn = "/etc/centos-release", ((-s $pn) < 1000)) {
+    system("cat $pn");
+  } elsif ($pn = "/etc/fedora-release", ((-s $pn) < 1000)) {
+    system("cat $pn");
+  } elsif ($bin = "/usr/bin/hostnamectl", (-x $bin)) {
+    system("$bin | egrep 'Operating System'");
+  } elsif ($pn = "/etc/os-release",
+               (`cat $pn | grep PRETTY_NAME | wc -l`) > 0) {
+    system("cat $pn | grep PRETTY_NAME");
+  } elsif ($pn = "/etc/debian_version", ((-s $pn) < 1000)) {
+    print "Debian version "; system("cat $pn");
+
+  # %%% More can go here. Look in:
+  #   ~/bin/vino-distro
+  #   ~/bin/rpmlib.pl in a block comment in &is_linux()
+  #
+
+  } else {
+    print STDERR "Unknown OSL Add rules to $0 to identify this OS\n";
+    print "unknown 0.0\n";
+  }
+
+  exit(0);
+} # End of self.bdistro
+
+sub cmd_ccsystem
+{
+  my($d, $f, $bin);
+
+  $trydirs = ":/usr/bin:";
+  $trynames = ":cc:clang:gcc:";
+  foreach $d (split(/:/, $trydirs)) {
+    if ($d ne '') {
+      foreach $f (split(':', $trynames)) {
+        if ($f ne '') {
+          $bin = "$d/$f";
+          $v1 = $v2 = '';
+          if (-x $bin) {
+            $v1 = `$bin --version`;
+            if ($v1 =~ m|\(GCC\) +([.0-9]+)|o) {
+              $v2 = "gcc $1";
+            } elsif ($v1 =~ m|clang +version +([.0-9]+)|o) {
+              $v2 = "clang $1";
+            }
+            if ($v2 ne '') {
+              print "$bin: $v2\n";
+            }
+          }
+        }
+      }
+    }
+  }
+  exit(0);
+} # End of cmd.ccsystem
+
+sub cmd_cclocal_status
+{
+  my($type, $vers) = @_;
+  my($ccdir, $vi, $ccbin);
+  if (!(",gcc,clang." =~ m/,$type,/)) {
+    die "cclocal: invalid type '$type'\n";
+  }
+  $vi = int($vers + 0);
+  if (($vi < 8) || ($vi > 13) || ($vi != $vers)) {
+    die "cclocal: ans0001 version '$vers' is out of bounds or not integer\n";
+  }
+  $ccdir = $ENV{'HOME'} . "/$type$vi";
+  if (!(-d $ccdir)) {
+    die "cclocal: ans0002 directory $ccdir not present.\n";
+  }
+  if (-e $ccdir) {
+    die "cclocal: ans0003 $ccdir exists but is not a directory.\n";
+  }
+  $ccbin = ($type eq 'gcc') ? "$ccdir/bin/bin/gcc"
+                            : "$ccdir/build/inst/bin/clang";
+  if (!(-x $ccbin)) {
+    die "cclocal: ans0004 $ccbin is not present.\n";
+  }
+  if (-e $ccdir) {
+    die "cclocal: ans0005 $ccbin exists but is not executable.\n";
+  }
+} # End of cmd.cclocal.status
+
+sub cmd_help
+{
+  my($opt) = @_;
+
+  if ($opt eq 'build') {
+    print $help_gcc_f35;
+    exit(0);
+  }
+  print $help;
+  exit(0);
+}
+
+while ($arg = shift) {
+  if ($arg eq '') {
+    # Ignore empty-string arg
+  } elsif ($arg =~ m/^-[-]?h(elp)?$/) {
+    if ($opt = shift) {
+      &cmd_help($opt);
+    }
+    print $help;
+    exit(0);
+  } elsif ($arg eq '-cclocal') {
+    # Commands related to setting up and building a local installation
+    # of a compiler from source
+    $subcmd = shift;
+    if ($subcmd eq 'status') {
+      $type = shift; $vers = shift;
+      &cmd_cclocal_status($type, $vers); exit(0);
+    } else {
+      die "cclocal: unknown subcommand '$subcmd'\n";
+    }
+  } elsif ($arg eq '-ccsystem') {
+    # Get a list of zero of more installed C compilers with version numbers
+    # (but without any sanity-testing)
+    &cmd_ccsystem(); exit(0);
+  } elsif ($arg eq '-distro') {
+    # Get distro summary string, like #bdistro#
+    &self_bdistro(); exit(0);
+  } elsif ($arg eq '-self') {
+    # Show pathname of this script
+    print "$g_self\n"; exit(0);
+  } else {
+    die "Unrecognised argument '$arg'\n";
+  }
+}
