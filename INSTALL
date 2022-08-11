@@ -30,6 +30,9 @@ explains what steps to take:
 
 Currently accepted parameters include:
 
+  --enable-allstatic=no  Prevent the use of "-all-static" in AM_LDFLAGS and
+                         "-static" in LDFLAGS
+
   --enable-flopoco  add floating point support by leveraging FloPoCo Library 
                     http://flopoco.gforge.inria.fr/
   --enable-xilinx   enable Xilinx RTL synthesis and simulation tools execution 
