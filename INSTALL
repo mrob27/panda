@@ -48,7 +48,6 @@ Currently accepted parameters include:
   --enable-opt      Compile the framework with GCC optimizations enabled
   --enable-release  Remove further tests not useful in a production environment
 
-
 Note that the scripts for synthesis and simulation are generated even
 if the corresponding tools are not configured as described above. In
 this case, the synthesis/simulation will use the system $PATH
@@ -77,9 +76,8 @@ which prints its built-in help.
 Additional documentation about the configuration, the execution of the
 test examples, and the creation of the basic documentation of the
 framework is part of this distribution, see the "Documentation"
-section below. Also, a different version of these INSTALL instructions
-(possibly with extra information) is at:
-http://panda.dei.polimi.it/?page_id=88
+section below. Also, an older (by a couple years) version of these
+INSTALL instructions is at: http://panda.dei.polimi.it/?page_id=88
 
 
 Test cases
@@ -107,16 +105,17 @@ Then, you can start browsing the documentation from the file
 
   obj/documentation/PANDA_html/index.html
 
-The tutorials are "ipynb" (Jupyter interactive Python notebook) files;
-however they can be converted into PDF. Use dnf, apt, yum, etc. to
-install the "jupyter" package, then convert a ipynb to PDF with the
-command:
+Two tutorials are "ipynb" (Jupyter interactive Python notebook) files;
+however they are just sets of instructions to run in a shell, and
+Jupyter is not needed to do the tutorials. The instructions can be
+converted into PDF. Use dnf, apt, yum, etc. to install the "jupyter"
+package, then convert a ipynb file to PDF with the command:
 
   $ jupyter nbconvert --to pdf bambu.ipynb
 
 If it fails and reports a missing LaTeX file (such as tcolorbox.sty)
 then you can install that LaTeX package and try again. For example,
-in Fedora systems use the command
+in Fedora systems use the command:
 
   $ sudo dnf install 'tex(tcolorbox.sty)'
 
