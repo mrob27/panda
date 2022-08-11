@@ -2783,14 +2783,19 @@ AC_CONFIG_FILES(ext/Makefile)
 ################################################################################
 
 ############### Final check for static linking #############################################
-# if test "x$panda_ALLSTATIC" = xyes ;then
-if test "x$panda_ALLSTATIC" = yxyes ;then
+
+echo RML xpanda_ALLSTATIC is x$panda_ALLSTATIC
+
+# if test "x$panda_ALLSTATIC" = yxyes ;then # to disable
+if test "x$panda_ALLSTATIC" = xyes ;then
   AM_LDFLAGS="-all-static -pthread";
   LDFLAGS+=" -static";
   AC_SUBST(AM_LDFLAGS)
 else
   AM_LDFLAGS="-pthread";
 fi
+
+echo RML AM_LDFLAGS is $AM_LDFLAGS
 
 case "${host_os}" in
   darwin*)
