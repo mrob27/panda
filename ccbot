@@ -69,6 +69,16 @@ Building GCC 8 on Fedora 35:
   cd ..
   mv gcc src
   cd src
+  cd libsanitizer/sanitizer_common/
+  # edit sanitizer_platform_limits_posix.h and disable:
+  #   // extern unsigned struct_cyclades_monitor_sz
+  #   // extern unsigned IOCTL_CY*      (9 matching lines all consecutive)
+  # edit sanitizer_platform_limits_posix.cc and disable:
+  #   // #include <linux/cyclades.h>
+  #   // unsigned struct_cyclades_monitor_sz = ...
+  #   // unsigned IOCTL_CY* = *;        (9 matching lines all consecutive)
+  # edit sanitizer_common_interceptors_ioctl.inc and disable:
+  #   // _(CY*, *, *);                  (9 matching lines all consecutive)
   time ./contrib/download_prerequisites
   cd ..
   mkdir build
@@ -87,8 +97,8 @@ Building GCC 8 on Fedora 35:
     --with-system-zlib \
     --without-cuda-driver \
     --without-included-gettext
-  time make MAKEINFO=true
-  time make install
+  time (make MAKEINFO=true && echo make-build success)
+  time (make install && echo make-inst success)
 
 If the 'make' succeeds, there will be an executable in
 ../build/gcc/xgcc and if you run it with the --version option, it
@@ -105,12 +115,11 @@ Building Clang 11 on Fedora 35:
 *******************************
 
   cd
-  mkdir clang11   # if you already have one, rename it first
+  # if you already have a directory 'clang11', rename it first
   mkdir llvm11-temp
   cd llvm11-temp
   git clone 'https://github.com/llvm/llvm-project.git'
   cd
-  rmdir clang11
   mv llvm11-temp/llvm-project ./clang11
   rmdir llvm11-temp
   cd clang11
