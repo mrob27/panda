@@ -60,6 +60,10 @@ $help_gcc_f35 = qq`
 Building GCC 8 on Fedora 35:
 *************************
 
+The source and temporary files for building are in ~/gcc8
+
+The installed binaries, libraries, headers, etc are all in ~/gcc-8
+
   cd
   mkdir gcc8   # if you already have one, rename it first
   cd gcc8
@@ -89,7 +93,7 @@ Building GCC 8 on Fedora 35:
     --with-multilib-list=m32,m64 \
     --enable-checking=release \
     --enable-languages=c,c++,lto \
-    --prefix=$HOME/gcc8/bin \
+    --prefix=$HOME/gcc-8 \
     --target=x86_64-linux-gnu \
     --with-bugurl=file:///usr/share/doc/gcc-8/README.Bugs \
     --with-gcc-major-version-only \
@@ -99,16 +103,17 @@ Building GCC 8 on Fedora 35:
     --without-included-gettext
   time (make MAKEINFO=true && echo make-build success)
   time (make install && echo make-inst success)
+  $HOME/gcc-8/bin/bin/gcc --version
 
-If the 'make' succeeds, there will be an executable in
-../build/gcc/xgcc and if you run it with the --version option, it
-should print "xgcc (Morobu-8.5.0) 8.5.0".
+If the 'make MAKEINFO=true' succeeds, there will be an executable in
+./gcc/xgcc and if you run it with the --version option, it should
+print "xgcc (Morobu-8.5.0) 8.5.0".
 
 If the 'make install' succeeds, there will be an executable at
-../bin/bin/gcc that can be used to compile things.
+~/gcc-8/bin/bin/gcc that can be used to compile things.
 
-To 'clean' the GCC 8 directory, just remove everything inside the
-'build' subdirectory.
+To 'clean' the gcc-8 build directory, just remove everything inside
+the 'build' subdirectory.
 
 
 Building Clang 11 on Fedora 35:
@@ -128,10 +133,10 @@ Building Clang 11 on Fedora 35:
   cd build
   time cmake3 -G 'Unix Makefiles' -Wno-dev -DCMAKE_BUILD_TYPE=Release \
     -DLLVM_ENABLE_PROJECTS=clang \
-    -DCMAKE_INSTALL_PREFIX=$HOME/clang11/inst \
+    -DCMAKE_INSTALL_PREFIX=$HOME/clang-11 \
     -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1   ../llvm
-  time make
-  time make install
+  (time make && echo make-build success)
+  (time make install && echo make-inst success)
   $HOME/clang11/build/inst/bin/clang --version  
 
 If the 'make' succeeds, there will be an executable in
