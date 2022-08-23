@@ -5,7 +5,7 @@ Installation Instructions
 These instructions do not assume 'sudo' or 'root' permissions, beyond
 installing the dependencies (step 1).
 
-1) Ask an administrator of your server (or use **sudo**) to iInstall
+1) Ask an administrator of your server (or use **sudo**) to Install
 the required packages (see specific details below for: Ubuntu, Debian,
 CentOS, Scientific Linux, ArchLinux, and Fedora)
 
@@ -17,10 +17,12 @@ explains what steps to take:
 3) Prepare the configuration script:
    $ make -f Makefile.init
 
-4) Create the directory for building PandA/bambu:
-   $ mkdir obj
+4) If you have changed the m4 scripts, recreate the configure script:
+   $ aclocal  # Errors on 'AM_PO_SUBDIRS' and 'AM_LDFLAGS' are normal
+   $ autoconf
 
-5) Move into the building directory:
+5) Create the directory for building PandA/bambu, and go into that directory:
+   $ mkdir obj
    $ cd obj
 
 6) Configure PandA:
