@@ -52,6 +52,23 @@ my $unused_block_header = q`
 
 REVISION HISTORY
  20220621 First version.
+ 20220816 Several corrections
+
+TTD
+
+The sequence:
+
+  cd src
+  cd libsanitizer/sanitizer_common/
+  edit sanitizer_platform_limits_posix.h and disable:
+    // extern unsigned struct_cyclades_monitor_sz
+
+can become:
+
+  pushdir('src'); # allows pop later
+  chdir('lib...');
+  setfile('sanitizer_platform_limits_posix.h'); # set file for patch_* actions
+  patch_dis1('extern unsigned struct_cyclades_monitor_sz'); # disable
 
 `;
 
@@ -59,6 +76,10 @@ $help_gcc_f35 = qq`
 
 Building GCC 8 on Fedora 35:
 *************************
+
+Required packages:
+
+  sudo dnf install flex zlib-devel
 
 The source and temporary files for building are in ~/gcc8
 
@@ -83,6 +104,7 @@ The installed binaries, libraries, headers, etc are all in ~/gcc-8
   #   // unsigned IOCTL_CY* = *;        (9 matching lines all consecutive)
   # edit sanitizer_common_interceptors_ioctl.inc and disable:
   #   // _(CY*, *, *);                  (9 matching lines all consecutive)
+  cd ~/gcc8/src
   time ./contrib/download_prerequisites
   cd ..
   mkdir build
@@ -103,32 +125,102 @@ The installed binaries, libraries, headers, etc are all in ~/gcc-8
     --without-included-gettext
   time (make MAKEINFO=true && echo make-build success)
   time (make install && echo make-inst success)
-  $HOME/gcc-8/bin/bin/gcc --version
+  $HOME/gcc-8/bin/gcc --version
 
 If the 'make MAKEINFO=true' succeeds, there will be an executable in
 ./gcc/xgcc and if you run it with the --version option, it should
 print "xgcc (Morobu-8.5.0) 8.5.0".
 
 If the 'make install' succeeds, there will be an executable at
-~/gcc-8/bin/bin/gcc that can be used to compile things.
+~/gcc-8/bin/gcc that can be used to compile things.
 
-To 'clean' the gcc-8 build directory, just remove everything inside
+To 'clean' the gcc8 build directory, just remove everything inside
+the 'build' subdirectory.
+
+
+Building GCC 9 on Fedora 35:
+*************************
+
+Required packages:
+
+  sudo dnf install flex zlib-devel
+
+The source and temporary files for building are in ~/gcc9
+
+The installed binaries, libraries, headers, etc are all in ~/gcc-9
+
+  cd
+  mkdir gcc9   # if you already have one, rename it first
+  cd gcc9
+  git clone 'https://github.com/gcc-mirror/gcc.git'
+  cd gcc
+  time git checkout 4212a6a3e44    # tag "releases/gcc-9.3.0"
+  cd ..
+  mv gcc src
+  cd src
+  cd libsanitizer/sanitizer_common/
+  # edit sanitizer_platform_limits_posix.h and disable:
+  #   // extern unsigned struct_cyclades_monitor_sz
+  #   // extern unsigned IOCTL_CY*      (9 matching lines all consecutive)
+  # edit sanitizer_platform_limits_posix.cc and disable:
+  #   // #include <linux/cyclades.h>
+  #   // unsigned struct_cyclades_monitor_sz = ...
+  #   // unsigned IOCTL_CY* = *;        (9 matching lines all consecutive)
+  # edit sanitizer_common_interceptors_ioctl.inc and disable:
+  #   // _(CY*, *, *);                  (9 matching lines all consecutive)
+  cd ~/gcc9/src
+  time ./contrib/download_prerequisites
+  cd ..
+  mkdir build
+  cd build
+  ../src/configure -v \
+    --build=x86_64-linux-gnu \
+    --disable-bootstrap \
+    --with-multilib-list=m32,m64 \
+    --enable-checking=release \
+    --enable-languages=c,c++,lto \
+    --prefix=$HOME/gcc-9 \
+    --target=x86_64-linux-gnu \
+    --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs \
+    --with-gcc-major-version-only \
+    --with-pkgversion='Morobu-9.3.0' \
+    --with-system-zlib \
+    --without-cuda-driver \
+    --without-included-gettext
+  time (make MAKEINFO=true && echo make-build success)
+  time (make install && echo make-inst success)
+  $HOME/gcc-9/bin/gcc --version
+
+If the 'make MAKEINFO=true' succeeds, there will be an executable in
+./gcc/xgcc and if you run it with the --version option, it should
+print "xgcc (Morobu-9.3.0) 9.3.0".
+
+If the 'make install' succeeds, there will be an executable at
+~/gcc-9/bin/gcc that can be used to compile things.
+
+To 'clean' the gcc9 build directory, just remove everything inside
 the 'build' subdirectory.
 
 
 Building Clang 11 on Fedora 35:
 *******************************
 
+Required packages:
+
+  sudo dnf install cmake
+
   cd
   # if you already have a directory 'clang11', rename it first
   mkdir llvm11-temp
   cd llvm11-temp
-  git clone 'https://github.com/llvm/llvm-project.git'
+  time git clone 'https://github.com/llvm/llvm-project.git'
   cd
   mv llvm11-temp/llvm-project ./clang11
   rmdir llvm11-temp
   cd clang11
   time git checkout 43ff75f2c3fe    # tagged "llvmorg-11.0.1"
+  # edit llvm/utils/benchmark/src/benchmark_register.h and add:
+  #   #include <limits>
   mkdir build
   cd build
   time cmake3 -G 'Unix Makefiles' -Wno-dev -DCMAKE_BUILD_TYPE=Release \
@@ -137,14 +229,14 @@ Building Clang 11 on Fedora 35:
     -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1   ../llvm
   (time make && echo make-build success)
   (time make install && echo make-inst success)
-  $HOME/clang11/build/inst/bin/clang --version  
+  $HOME/clang-11/bin/clang --version  
 
 If the 'make' succeeds, there will be an executable in
 $HOME/clang11/build/bin/clang and if you run it with the --version
 option, it should print "clang version 11.0.1".
 
 If the 'make install' succeeds, there will be an executable at
-$HOME/clang11/inst/bin/clang that can be used to compile things.
+$HOME/clang-11/bin/clang that can be used to compile things.
 
 To 'clean' the Clang 11 directory, just remove everything inside the
 'build' subdirectory.
@@ -259,8 +351,8 @@ sub cmd_cclocal_status
   if (-e $ccdir) {
     die "cclocal: ans0003 $ccdir exists but is not a directory.\n";
   }
-  $ccbin = ($type eq 'gcc') ? "$ccdir/bin/bin/gcc"
-                            : "$ccdir/build/inst/bin/clang";
+  $ccbin = ($type eq 'gcc') ? "$ccdir/bin/gcc"
+                            : "$ccdir/build/bin/clang";
   if (!(-x $ccbin)) {
     die "cclocal: ans0004 $ccbin is not present.\n";
   }
