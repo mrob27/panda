@@ -287,6 +287,47 @@ void create_tree_manager::createCostTable()
 #endif
 }
 
+// Given a pathname to a file, return a nonzero result if the file
+// is not a gzip file. This is used by create_tree_manager::Exec to decide
+// if a ".o" file should be skipped.
+int file_is_not_gzip(const char * pathname)
+{
+  FILE * fp;
+  unsigned char buf[10];
+  size_t gotbytes;
+  int rv, i;
+   std::cout<<"fing '"<<pathname<<"'"<<std::endl;
+  rv = 1; // default return value, assumes that the file is not gzip
+  fp = fopen(pathname, "r");
+  if (fp == 0) {
+     std::cout<<"  fopen err"<<std::endl;
+    return rv; // do not attempt fread or fclose
+  }
+  gotbytes = fread((void *)(buf), 1, 10, fp);
+
+   std::cout<<"  got:";
+   for(i=0; i<10; i++) {
+     char stmp[10];
+     snprintf(stmp, 10, " %02x", buf[i]);
+     std::cout<<stmp;
+   }
+   std::cout<<std::endl;
+
+  if (gotbytes < 10) {
+    // do not bother checking
+     std::cout<<"  fread err"<<std::endl;
+  } else if ( (buf[0]==0x1f) && (buf[1]==0x8b) && (buf[2]==8)
+   && (buf[3]==0) && (buf[4]==0) && (buf[5]==0) && (buf[6]==0)
+  ) {
+     std::cout<<"  yes it is gzip"<<std::endl;
+    rv = 0;
+  } else {
+     std::cout<<"  not gzip"<<std::endl;
+  }
+  fclose(fp);
+  return rv;
+} // End of file_is_not_gzip
+
 DesignFlowStep_Status create_tree_manager::Exec()
 {
    const tree_managerRef TreeM = AppM->get_tree_manager();
@@ -325,9 +366,20 @@ DesignFlowStep_Status create_tree_manager::Exec()
          for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(temp_path_obtained), {}))
          {
             auto fileExtension = GetExtension(entry.path());
-            /* Do not attempt to "parse" object files */
-            if((fileExtension == "o") || (fileExtension == "O"))
+            /* Do not attempt to "parse" files that are not ".o". Only
+               Gimple SSA text is parseable, and for some reason PandA
+               compresses Gimple SSA text and saves the compressed result
+               as a file with extension ".o", then archives that ".o file"
+               into an ar archive with extension ".a". */
+            if((fileExtension != "o") && (fileExtension != "O"))
             {
+               // It is not a .o so it cannot be one of our secret gzip files
+               continue;
+            }
+            if(file_is_not_gzip(entry.path().c_str())) {
+               // This might be a legitimate object file (e.g. an ELF file
+               // in Linux), so we need to skip this to prevent a segfault
+               // inside yyparse()
                continue;
             }
             const tree_managerRef TM_new = ParseTreeFile(parameters, entry.path().string());

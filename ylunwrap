@@ -1,0 +1,245 @@
+#! /bin/sh
+# ylunwrap - A debuggable version of ylwrap
+
+scriptversion=2022-09-01.02;
+
+# Based on the 20180307 version, originally by Tom Tromey
+# which was Copyright (C) 1996-2020 Free Software Foundation, Inc.
+# and licensed under GPL v2 (see <https://www.gnu.org/licenses/>)
+# with an Autoconf-specific rider granting the option to use it
+# under the license of the software package in which it was included,
+# which in this case was GPL v3.
+
+get_dirname ()
+{
+  case $1 in
+    */*|*\\*) printf '%s\n' "$1" | sed -e 's|\([\\/]\)[^\\/]*$|\1|';;
+    # Otherwise,  we want the empty string (not ".").
+  esac
+}
+
+# guard FILE
+# ----------
+# The CPP macro used to guard inclusion of FILE.
+guard ()
+{
+  printf '%s\n' "$1"                                                    \
+    | sed                                                               \
+        -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'   \
+        -e 's/[^ABCDEFGHIJKLMNOPQRSTUVWXYZ]/_/g'                        \
+        -e 's/__*/_/g'
+}
+
+# quote_for_sed [STRING]
+# ----------------------
+# Return STRING (or stdin) quoted to be used as a sed pattern.
+quote_for_sed ()
+{
+  case $# in
+    0) cat;;
+    1) printf '%s\n' "$1";;
+  esac \
+    | sed -e 's|[][\\.*]|\\&|g'
+}
+
+case "$1" in
+  '')
+    echo "$0: No files given.  Try '$0 --help' for more information." 1>&2
+    exit 1
+    ;;
+  --basedir)
+    basedir=$2
+    shift 2
+    ;;
+  -h|--h*)
+    cat <<\EOF
+Usage: ylunwrap [--help|--version|--basedir <dir>] INPUT [OUTPUT DESIRED]... -- PROGRAM [ARGS]...
+
+This is a wrapper for lex/yacc invocations, adding the ability to
+specify the name of each standard output file of a program like lex or
+yacc. For example, for yacc the standard names y.tab.c and y.tab.h can
+be named as desired.
+
+  INPUT is the input file
+  OUTPUT is one file PROG generates
+  DESIRED is the file we actually want instead of OUTPUT
+  the [OUTPUT DESIRED] pair can be repeated to remap more filenames
+  PROGRAM is program to run (yacc, bison, etc.)
+  ARGS are additional arguments passed to PROG (non-filename options)
+
+Any number of OUTPUT,DESIRED pairs may be used.
+
+Report bugs to <bug-automake@gnu.org>.
+EOF
+    exit $?
+    ;;
+  -v|--v*)
+    echo "ylwrap $scriptversion"
+    exit $?
+    ;;
+esac
+
+# Tell the user what we are doing
+echo -n "ylunwrap: cwd is: "
+pwd
+echo    "        args are:" $*
+
+# The input.
+input=$1
+shift
+ifn=$(basename -- "$input")
+# We'll later need for a correct munging of "#line" directives.
+input_sub_rx=`get_dirname "$input" | quote_for_sed`
+case $input in
+  [\\/]* | ?:[\\/]*)
+    # Absolute path; do nothing.
+    ;;
+  *)
+    # Relative path.  Make it absolute.
+    input=`pwd`/$input
+    ;;
+esac
+input_rx=`get_dirname "$input" | quote_for_sed`
+
+# Since DOS filename conventions don't allow two dots,
+# the DOS version of Bison writes out y_tab.c instead of y.tab.c
+# and y_tab.h instead of y.tab.h. Test to see if this is the case.
+y_tab_nodot=false
+if test -f y_tab.c || test -f y_tab.h; then
+  y_tab_nodot=true
+fi
+
+# The parser itself, the first file, is the destination of the .y.c
+# rule in the Makefile.
+parser=$1
+
+# A sed program to s/FROM/TO/g for all the FROM/TO so that, for
+# instance, we rename #include "y.tab.h" into #include "parse.h"
+# during the conversion from y.tab.c to parse.c.
+sed_fix_filenames=
+
+# Also rename header guards, as Bison 2.7 for instance uses its header
+# guard in its implementation file.
+sed_fix_header_guards=
+
+while test $# -ne 0; do
+  if test x"$1" = x"--"; then
+    shift
+    break
+  fi
+  from=$1
+  # Handle y_tab.c and y_tab.h output by DOS
+  if $y_tab_nodot; then
+    case $from in
+      "y.tab.c") from=y_tab.c;;
+      "y.tab.h") from=y_tab.h;;
+    esac
+  fi
+  shift
+  to=$1
+  shift
+  sed_fix_filenames="${sed_fix_filenames}s|"`quote_for_sed "$from"`"|$to|g;"
+  sed_fix_header_guards="${sed_fix_header_guards}s|"`guard "$from"`"|"`guard "$to"`"|g;"
+done
+
+# The program to run.
+prog=$1
+shift
+# Make any relative path in $prog absolute.
+case $prog in
+  [\\/]* | ?:[\\/]*) ;;
+  *[\\/]*) prog=`pwd`/$prog ;;
+esac
+
+dirname=ylwrap-$ifn-temp
+echo 'ylunwrap: ylwrap dirname is' $dirname
+# handle a SIGHUP, SIGINT, SIGPIPE, and/or SIGTERM by immediately stopping
+# whatever we were doing.
+# %%% RPM for diagnostic use, the tempdir is now left intact
+do_exit="cd '`pwd`' > /dev/null 2>&1;"' (exit $ret); exit $ret'
+# do_exit="cd '`pwd`' && rm -rf $dirname > /dev/null 2>&1;"' (exit $ret); exit $ret'
+trap "ret=129; $do_exit" 1
+trap "ret=130; $do_exit" 2
+trap "ret=141; $do_exit" 13
+trap "ret=143; $do_exit" 15
+
+# Clear out anything that might be in the tempdir from last time
+rm -rf $dirname
+mkdir $dirname || exit 1
+
+echo "ylunwrap: cd $dirname"
+cd $dirname
+
+# Tell them what we are about to run, then run it
+case $# in
+  0) echo "ylunwrap: running:" "$prog" "$input" ;;
+  *) echo "ylunwrap: running:" "$prog" "$@" "$input" ;;
+esac
+case $# in
+  0) "$prog" "$input" ;;
+  *) "$prog" "$@" "$input" ;;
+esac
+ret=$?
+
+if test $ret -eq 0; then
+  # Successful run: perform the renaming
+  for from in *
+  do
+    to=`printf '%s\n' "$from" | sed "$sed_fix_filenames"`
+    if test -f "$from"; then
+      # If $2 is an absolute path name, then just use that,
+      # otherwise prepend '../'.
+      case $to in
+        [\\/]* | ?:[\\/]*) target=$to;;
+        *) target=../$to;;
+      esac
+
+      # Do not overwrite unchanged header files to avoid useless
+      # recompilations.  Always update the parser itself: it is the
+      # destination of the .y.c rule in the Makefile.  Divert the
+      # output of all other files to a temporary file so we can
+      # compare them to existing versions.
+      if test $from != $parser; then
+        realtarget=$target
+        target=tmp-`printf '%s\n' "$target" | sed 's|.*[\\/]||g'`
+      fi
+
+      # Munge "#line" or "#" directives.  Don't let the resulting
+      # debug information point at an absolute srcdir.  Use the real
+      # output file name, not yy.lex.c for instance.  Adjust the
+      # include guards too.
+      sed -e "/^#/!b"                           \
+          -e "s|$input_rx|$input_sub_rx|"       \
+          -e "$sed_fix_filenames"               \
+          -e "$sed_fix_header_guards"           \
+        "$from" >"$target" || ret=$?
+
+      # Check whether this file must be updated.
+      if test "$from" != "$parser"; then
+        if test -f "$realtarget" && cmp -s "$realtarget" "$target"; then
+          # "cmp -s" exit status is 0, i.e. the files are identical
+          echo "ylunwrap: $to ($realtarget) is unchanged"
+          # rm -f "$target"
+        else
+          echo "ylunwrap: updating $to: cp -f $target $realtarget"
+          # mv -f "$target" "$realtarget"
+          cp -f "$target" "$realtarget"
+        fi
+      fi
+    else
+      # A missing file is only an error for the parser.  This is a
+      # blatant hack to let us support using "yacc -d".  If -d is not
+      # specified, don't fail when the header file is "missing".
+      if test "$from" = "$parser"; then
+        ret=1
+      fi
+    fi
+  done
+fi
+
+# We now leave the tempfiles intact for diagnostic use
+echo "ylunwrap: leaving $dirname intact"
+cd ..
+# rm -rf $dirname %%% RPM: this is now done at the start (search for "rm -rf")
+
+exit $ret

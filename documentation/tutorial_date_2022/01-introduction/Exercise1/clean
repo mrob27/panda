@@ -1,5 +1,6 @@
 #!/usr/bin/env bash 
 rm -rf HLS_output/
+rm -rf panda-temp/
 rm -f icrc1.v icrc1.vhd test.xml
 rm -f mem*xml bambu_results_*
 rm -f results.txt simulate*.sh synthesize*.sh 

@@ -1,4 +1,4 @@
-/**
+/** -*- C++ -*-
  *
  *                   _/_/_/    _/_/   _/    _/ _/_/_/    _/_/
  *                  _/   _/ _/    _/ _/_/  _/ _/   _/ _/    _/
@@ -2857,7 +2857,9 @@ extern tree_managerRef tree_parseY(const ParameterConstRef Param, std::string fn
 #if YYDEBUG
     yydebug = 1;
 #endif
+std::cout<<"calling yyparse(.., '"<<fn<<"')"<<std::endl; // %%%RPM
     yyparse(data, lexer);
+std::cout<<"yyparse done"<<std::endl; // %%%RPM
     if(data->final_TM)
       data->final_TM->merge_tree_managers(data->current_TM);
     else

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash 
 rm -rf HLS_output/
+rm -rf panda-temp/
 rm -f mem*xml bambu_results_*
 rm -f results.txt simulate_main_kernel.sh synthesize_Synthesis_main_kernel.sh 
 rm -f main_kernel.v 

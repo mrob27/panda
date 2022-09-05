@@ -59,3 +59,15 @@ obj/
 
 panda_dist/
 panda_release/
+
+# It is sloppy to have the exercises' output/result files mixed in the
+# same direcertories along with version-controlled sources, so here we need
+# this long list of specific things
+**/Exercise*/panda-temp/
+**/Exercise*/HLS_output/
+**/Exercise3/bambu_results_*.xml
+**/Exercise3/memory_allocation_*.xml
+**/Exercise3/main_kernel.v
+**/Exercise3/results.txt
+**/Exercise3/simulate_main_kernel.sh
+**/Exercise3/synthesize_Synthesis_main_kernel.sh

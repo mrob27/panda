@@ -33,6 +33,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_LEX
 AC_PROG_YACC
+# %%%RPM do the following to remove the -y option (does not work)
+#echo "AC.PROG.YACC set YACC to" "$YACC"
+#YACC=$(echo ${YACC}| sed 's/-y//;s/ //')
+#echo "YACC trim to" "$YACC"
 AC_PROG_F77
 
 AC_ARG_ENABLE(clanglibcpp,         [  --enable-clanglibcpp         Clang is going to use libc++ ],                                                          [panda_clanglibcpp="$enableval"], [panda_clanglibcpp="no"])
