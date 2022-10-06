@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 #
+#    AROS_COPYRIGHT
+#    AROS_LICENSE
+#    AROS_SRCTAG
+#
 $hd = $ENV{"HOME"};
 $g_self = $0;
 $bapropos = q@
@@ -53,6 +57,7 @@ my $unused_block_header = q`
 REVISION HISTORY
  20220621 First version.
  20220816 Several corrections
+ 20220822 gcc7 instructions work; add patch.dis1, push.dir, 
 
 TTD
 
@@ -73,6 +78,153 @@ can become:
 `;
 
 $help_gcc_f35 = qq`
+
+GCC 4.6:
+
+  66cc0b3cf5b  (tag: refs/tags/releases/gcc-4.6.4
+  patches:
+  edit gcc/config/i386/linux-unwind.h (as below)
+
+GCC 4.7:
+
+  4d1f511d7f2  (tag: refs/tags/releases/gcc-4.7.4
+
+  patches:
+  # (there is no asan_linux.cc)
+  # (there is no tsan_platform_linux.cc)
+  edit libgcc/config/i386/linux-unwind.h (as below)
+
+GCC 4.8:
+
+  2da13f5a051  (tag: refs/tags/releases/gcc-4.8.5
+
+  patches:
+  # (edits for "cyclades", "IOCTL_CY" etc. are not needed)
+  # (edit for "CHECK_SIZE_AND_OFFSET" is not needed)
+  # (edits for "ustat" are not needed)
+  # (edits for "sigaltstack" are not needed)
+  libsanitizer/asan/asan_linux.cc
+    add:
+      #include <signal.h>
+  libsanitizer/tsan/tsan_platform_linux.cc
+    change:
+       __res_state *statp = (__res_state*)state;
+    to:
+       struct __res_state *statp = (struct __res_state*)state;
+  libgcc/config/i386/linux-unwind.h
+    change "struct ucontext" to "ucontext_t" in 2 places
+
+GCC 4.9:
+
+  4f18db57daf  (tag: refs/tags/releases/gcc-4.9.4
+
+  patches:
+
+  # libgcc/config/i386/linux-unwind.h
+  # change "struct ucontext" to "ucontext_t" in 2 places
+
+  # libsanitizer/sanitizer_common/sanitizer_linux.cc
+  # change prototype:
+  #   uptr internal_sigaltstack(const void *ss, void *oss) {
+  # edit libsanitizer/sanitizer_common/sanitizer_linux.h
+  # // struct sigaltstack;
+  # # change prototype:
+  # uptr internal_sigaltstack(const void* ss, void* oss);
+
+  # libsanitizer/sanitizer_common/sanitizer_stoptheworld_linux_libcdep.cc
+  # change "struct sigaltstack handler_stack;" to "stack_t handler_stack;"
+
+  # libsanitizer/tsan/tsan_platform_linux.cc
+  # change:
+  #    __res_state *statp = (__res_state*)state;
+  # to:
+  #    struct __res_state *statp = (struct __res_state*)state;
+
+  # libsanitizer/asan/asan_linux.cc
+  # add:
+  #   #include <signal.h>
+
+
+GCC 5:
+
+  926d9947847  (tag: refs/tags/releases/gcc-5.5.0
+
+  # edit sanitizer_common_syscalls.inc:
+  #   locate "PRE_SYSCALL(ustat)" and change previous line to:
+  #     #if !SANITIZER_LINUX && !SANITIZER_ANDROID
+  #   or equivalently just disable this:
+  #     // if (ubuf) POST_WRITE(ubuf, struct_ustat_sz);
+  # edit sanitizer_platform_limits_posix.cc and disable:
+  #   // #include <sys/ustat.h>
+  #   // unsigned struct_ustat_sz = sizeof(struct ustat);
+
+GCC 6:
+
+  e31ae982c44  (tag: refs/tags/releases/gcc-6.5.0)
+  same patches as gcc-7
+
+Building GCC 7 on Fedora 35:
+*************************
+
+Required packages:
+
+  sudo dnf install flex zlib-devel
+
+The source and temporary files for building are in ~/gcc7
+
+The installed binaries, libraries, headers, etc are all in ~/gcc-7
+
+  cd
+  mkdir gcc7   # if you already have one, rename it first
+  cd gcc7
+  git clone 'https://github.com/gcc-mirror/gcc.git'
+  cd gcc
+  git log --no-walk --tags --pretty="%ai %h %d %s" --decorate=full \
+    > ~/gcc-release-history.txt
+  # Identify the release you want, e.g. "refs/tags/releases/gcc-7.5.0"
+  time git checkout b2d961e7342    # tag "releases/gcc-7.5.0"
+  cd ..
+  mv gcc src
+  cd src
+  cd libsanitizer/sanitizer_common/
+  # edit sanitizer_platform_limits_posix.h and disable:
+  #   // extern unsigned struct_cyclades_monitor_sz
+  #   // extern unsigned IOCTL_CY*      (9 matching lines all consecutive)
+  # edit sanitizer_platform_limits_posix.cc and disable:
+  #   // #include <linux/cyclades.h>
+  #   // unsigned struct_cyclades_monitor_sz = ...
+  #   // unsigned IOCTL_CY* = *;        (9 matching lines all consecutive)
+  #   // CHECK_SIZE_AND_OFFSET(ipc_perm, mode);
+  # edit sanitizer_common_interceptors_ioctl.inc and disable:
+  #   // _(CY*, *, *);                  (9 matching lines all consecutive)
+  cd ~/gcc7/src
+  time ./contrib/download_prerequisites
+  cd ..
+  mkdir build
+  cd build
+  export CC=$HOME/gcc-8/bin/gcc
+  export CXX=$HOME/gcc-8/bin/g++
+  ../src/configure -v \
+    --prefix=$HOME/gcc-7 \
+    --enable-languages=c,c++,lto \
+    --disable-multilib \
+    --disable-libstdcxx-pch \
+    --with-system-zlib
+  time (make MAKEINFO=true && echo make-build success)
+  ./gcc/xgcc --version
+  time (make install && echo make-inst success)
+  $HOME/gcc-7/bin/gcc --version
+
+If the 'make MAKEINFO=true' succeeds, there will be an executable in
+./gcc/xgcc and if you run it with the --version option, it should
+print "xgcc (Morobu-7.5.0) 7.5.0".
+
+If the 'make install' succeeds, there will be an executable at
+~/gcc-7/bin/gcc that can be used to compile things.
+
+To 'clean' the gcc7 build directory, just remove everything inside
+the 'build' subdirectory.
+
 
 Building GCC 8 on Fedora 35:
 *************************
@@ -124,6 +276,7 @@ The installed binaries, libraries, headers, etc are all in ~/gcc-8
     --without-cuda-driver \
     --without-included-gettext
   time (make MAKEINFO=true && echo make-build success)
+  ./gcc/xgcc --version
   time (make install && echo make-inst success)
   $HOME/gcc-8/bin/gcc --version
 
@@ -360,6 +513,63 @@ sub cmd_cclocal_status
     die "cclocal: ans0005 $ccbin exists but is not executable.\n";
   }
 } # End of cmd.cclocal.status
+
+# Disable exactly one matching line in a file
+sub patch_dis1
+{
+  my($pat) = @_;
+  my($IN, $OUT, $l, $tfil, $nm);
+
+  if ($g_setfile eq '') {
+    die "patch_dis1: no setfile() was done\n";
+  }
+  if(!(-f $g_setfile)) {
+    die "patch_dis1: There is no file '#g_setfile'\n";
+  }
+  open($IN, $g_setfile);
+  $tfil = "ccbot-pd1-temp.txt";
+  open($OUT, "> $tfil");
+  $nm = 0;
+  while ($l = <$IN>) {
+    chomp $l;
+    if ($l =~ m/$pat/) {
+      $nm++;
+      if ($l =~ m|^// |) {
+        # Already patched
+      } else {
+        $l = '// ' . $l;
+      }
+    }
+    print $OUT "$l\n";
+  }
+  close $IN;
+  close $OUT;
+  if ($nm == 1) {
+    # We found exactly the number of lines we hoped to find.
+    system("cat $tfil > $g_setfile");
+  } elsif ($nm < 1) {
+    die "patch.dis1: Pattern /$pat/ was not found in $g_setfile\n";
+  } else {
+    die "patch.dis1: Pattern /$pat/ was found more than once in $g_setfile\n";
+  }
+} # End of patch.dis1
+
+sub pushdir
+{
+  my($d) = @_;
+  my($cwd);
+  $cwd = `pwd`; chomp $cwd;
+  if(!(-d $d)) {
+    die "pushdir: there is no directory '$d' (currently in $cwd)\n";
+  }
+  $g_dirstack[$g_dirsp] = $cwd; $g_dirsp++;
+  chdir($d);
+} # End of push.dir
+
+#  pushdir('src'); # allows pop later
+#  chdir('lib...');
+#  setfile('sanitizer_platform_limits_posix.h'); # set file for patch_* actions
+#  patch_dis1('extern unsigned struct_cyclades_monitor_sz'); # disable
 
 sub cmd_help
 {

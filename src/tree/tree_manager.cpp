@@ -279,8 +279,12 @@ unsigned int tree_manager::function_index_mngl(const std::string& function_name)
 
 void tree_manager::print(std::ostream& os) const
 {
+std::cout<<"tm:p start\n";
 #if HAVE_MAPPING_BUILT
    std::string component_type_string = Param->getOption<std::string>(OPT_driving_component_type);
+std::cout<<"tm:p   component type "<<component_type_string<<"\n";
+#else
+std::cout<<"tm:p   no component type\n";
 #endif
    raw_writer RW(
 #if HAVE_MAPPING_BUILT
@@ -288,10 +292,13 @@ void tree_manager::print(std::ostream& os) const
 #endif
        os);
 
+std::cout<<"tm:p   version "<<CompilerWrapper::current_compiler_version<<"\n";
+
    os << STOK(TOK_GCC_VERSION) << ": \"" << CompilerWrapper::current_compiler_version << "\"\n";
    os << STOK(TOK_PLUGIN_VERSION) << ": \"" << CompilerWrapper::current_plugin_version << "\"\n";
 
    unsigned int node_index = 0;
+unsigned int nwc = 0;
    for(node_index = 0; node_index <= last_node_id; node_index++)
    {
       if(tree_nodes.find(node_index) != tree_nodes.end())
@@ -299,8 +306,10 @@ void tree_manager::print(std::ostream& os) const
          os << "@" << tree_nodes.find(node_index)->first << " ";
          tree_nodes.find(node_index)->second->visit(&RW);
          os << std::endl;
+nwc++;
       }
    }
+std::cout<<"tm:p   wrote "<<nwc<<"/"<<(last_node_id+1)<<" nodes\n";
 }
 
 void tree_manager::PrintGimple(std::ostream& os, const bool use_uid) const

@@ -130,15 +130,15 @@ tree_managerRef ParseTreeFile(const ParameterConstRef& Param, const std::string&
                      }
                      if(fname == "")
                      {
-                        THROW_ERROR("malformed pipeline infer file");
+                        THROW_ERROR("malformed pipeline infer file (1)");
                      }
                      if(is_pipelined.compare("yes") && is_pipelined.compare("no"))
                      {
-                        THROW_ERROR("malformed pipeline infer file");
+                        THROW_ERROR("malformed pipeline infer file (2)");
                      }
                      if(simple_pipeline.compare("yes") && simple_pipeline.compare("no"))
                      {
-                        THROW_ERROR("malformed pipeline infer file");
+                        THROW_ERROR("malformed pipeline infer file (3)");
                      }
                      if(is_pipelined.compare("yes") && !simple_pipeline.compare("yes"))
                      {
@@ -146,14 +146,14 @@ tree_managerRef ParseTreeFile(const ParameterConstRef& Param, const std::string&
                      }
                      if(!simple_pipeline.compare("yes") && std::stoi(initiation_time) != 1)
                      {
-                        THROW_ERROR("malformed pipeline infer file");
+                        THROW_ERROR("malformed pipeline infer file (4)");
                      }
                      for(const auto& iterArg : Enode->get_children())
                      {
                         const auto* EnodeArg = GetPointer<const xml_element>(iterArg);
                         if(EnodeArg)
                         {
-                           THROW_ERROR("malformed pipeline infer file");
+                           THROW_ERROR("malformed pipeline infer file (5)");
                         }
                      }
                      const auto fu_node = TM->GetFunction(fname);

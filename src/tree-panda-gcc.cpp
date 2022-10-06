@@ -145,10 +145,12 @@ static void close_everything(int argc, char* argv[], const ParameterRef& Param)
  */
 int main(int argc, char* argv_orig[])
 {
+std::cout<<"tpg main start\n";
    char** argv = alloc_argv(argc, argv_orig);
    ParameterRef Param;
    try
    {
+std::cout<<"tpc: foo07\n";
       long int total_time;
       START_TIME(total_time);
       // ---------- Parameter parsing ------------ //
@@ -163,6 +165,7 @@ int main(int argc, char* argv_orig[])
          }
          case EXIT_SUCCESS:
          {
+std::cout<<"tpc: foo08\n";
             close_everything(argc, argv, Param);
             return EXIT_SUCCESS;
          }
@@ -189,6 +192,7 @@ int main(int argc, char* argv_orig[])
       const tree_managerRef TM(new tree_manager(Param));
       if(Param->isOption(OPT_input_file))
       {
+std::cout<<"tpc: foo06\n";
          long int wrapping_time;
 
          START_TIME(wrapping_time);
@@ -242,13 +246,16 @@ int main(int argc, char* argv_orig[])
       }
       if(!Param->isOption(OPT_gcc_E) && !Param->isOption(OPT_gcc_S))
       {
+std::cout<<"tpc: foo05\n";
          long int tree_time;
          START_TIME(tree_time);
          if(Param->isOption(OPT_obj_files))
          {
+std::cout<<"tpc: foo04\n";
             const auto object_files = Param->getOption<const CustomSet<std::string>>(OPT_obj_files);
             for(const auto& object_file : object_files)
             {
+std::cout<<"tpc: foo09\n";
                if(!boost::filesystem::exists(boost::filesystem::path(object_file)))
                {
                   THROW_ERROR("File " + object_file + " does not exist");
@@ -259,6 +266,7 @@ int main(int argc, char* argv_orig[])
          }
          if(Param->isOption(OPT_archive_files))
          {
+std::cout<<"tpc: foo03\n";
             const auto archive_files = Param->getOption<const CustomSet<std::string>>(OPT_archive_files);
             for(const auto& archive_file : archive_files)
             {
@@ -285,6 +293,7 @@ int main(int argc, char* argv_orig[])
                for(auto& entry :
                    boost::make_iterator_range(boost::filesystem::directory_iterator(temp_path_obtained), {}))
                {
+std::cout<<"tpc: foo10\n";
                   const tree_managerRef TM_new = ParseTreeFile(Param, entry.path().string());
                   TM->merge_tree_managers(TM_new);
                }
@@ -303,17 +312,21 @@ int main(int argc, char* argv_orig[])
          std::string raw_file_name;
          if(Param->isOption(OPT_compress_archive))
          {
+std::cout<<"tpc: foo02\n";
             auto archive_file = Param->getOption<std::string>(OPT_compress_archive);
             std::string fname = archive_file.substr(0, archive_file.find('.'));
             fname = fname + ".o";
             {
                fileIO_ostreamRef raw_file = fileIO_ostream_open(fname);
                PRINT_DBG_MEX(DEBUG_LEVEL_VERBOSE, debug_level, "Dumping Tree-Manager");
+std::cout<<"tpc: running2 (*raw_file) << TM\n";
                (*raw_file) << TM;
+std::cout<<"tpc: dump2 done.\n";
                PRINT_DBG_MEX(DEBUG_LEVEL_VERY_PEDANTIC, debug_level, "Dumped Tree-Manager");
             }
             std::string command = "ar cru " + archive_file + " " + fname;
             // std::cout << command << std::endl;
+std::cout<<"tpc: running: "<<command<<"\n";
             int ret = PandaSystem(Param, command);
             if(IsError(ret))
             {
@@ -322,6 +335,7 @@ int main(int argc, char* argv_orig[])
          }
          else
          {
+std::cout<<"tpc: foo01\n";
             if(Param->isOption(OPT_output_file))
             {
                raw_file_name = Param->getOption<std::string>(OPT_output_file);
@@ -332,7 +346,9 @@ int main(int argc, char* argv_orig[])
             }
             fileIO_ostreamRef raw_file = fileIO_ostream_open(raw_file_name);
             PRINT_DBG_MEX(DEBUG_LEVEL_VERBOSE, debug_level, "Dumping Tree-Manager");
+std::cout<<"tpc: running1 (*raw_file) << TM\n";
             (*raw_file) << TM;
+std::cout<<"tpc: dump1 done.\n";
             PRINT_DBG_MEX(DEBUG_LEVEL_VERY_PEDANTIC, debug_level, "Dumped Tree-Manager");
          }
       }

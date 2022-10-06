@@ -349,6 +349,9 @@ inline std::string BuildPath(const std::string& first_part, const std::string se
 inline int PandaSystem(const ParameterConstRef Param, const std::string& system_command, const std::string& output = "",
                        const unsigned int type = 3, const bool background = false, const size_t timeout = 0)
 {
+std::cout<<"PandaSystem: cdir: "<< GetCurrentPath() <<std::endl;
+std::cout<<"  running command: "<< system_command <<std::endl;
+
    static size_t counter = 0;
    const std::string actual_output = output == "" ? Param->getOption<std::string>(OPT_output_temporary_directory) +
                                                         STR_CST_file_IO_shell_output_file + "_" +

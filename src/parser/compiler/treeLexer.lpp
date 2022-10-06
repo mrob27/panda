@@ -126,11 +126,25 @@ node_lit	"@"{unsigned_lit}
 
 %%
 
-{alpha_p_}{alnum_p_}* { int res = tokens->check_tokens(YYText()); if(res <0){ LexerError("Unrecognized keyword"); }  else return res;}
+{alpha_p_}{alnum_p_}* {
+  int res = tokens->check_tokens(YYText());
+std::cout<<"tL.l: tok#"<<res<<" '"<<YYText()<<"'\n";
+  if(res <0){
+    LexerError("Unrecognized keyword");
+  } else return res;
+}
 
 {int_lit}         {lvalp->long_value = boost::lexical_cast<long long int>(YYText()); return TOK_BISON_NUMBER;}
-{node_lit} {lvalp->value= strtol(YYText()+1, (char **)NULL, 10); return NODE_ID;}
-{string_lit}      {lvalp->text=YYText(); return TOK_BISON_STRING;}
+{node_lit} {
+  lvalp->value= strtol(YYText()+1, (char **)NULL, 10);
+std::cout<<"tL.l: @"<<lvalp->value<<"\n";
+  return NODE_ID;
+}
+{string_lit}      {
+  lvalp->text=YYText();
+std::cout<<"tL.l: str "<<lvalp->text<<"\n";
+  return TOK_BISON_STRING;
+}
 
 
 ";;".*\n /* eat up one-line comments */

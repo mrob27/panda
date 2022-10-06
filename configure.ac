@@ -1,13 +1,13 @@
-################################################################################
-#                                                                              #
-#                      Checking common prerequisites                           #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                     Checking common prerequisites                           #
+#                                                                             #
+###############################################################################
 AC_PREREQ(2.57)
 AC_INIT(PandA, 0.9.8, panda-info@polimi.it)
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE([-Wno-portability 1.9 tar-pax subdir-objects])
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+#m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([configure.ac])
 
 AC_DISABLE_SHARED
@@ -18,6 +18,7 @@ AC_CONFIG_MACRO_DIR(etc/macros)
 : ${CFLAGS=""}
 : ${CXXFLAGS=""}
 CFLAGS_EXT=-O2
+#CXXFLAGS_EXT="-O2 -D_GLIBCXX_DEBUG"  # does not work, link errors
 CXXFLAGS_EXT=-O2
 CXXFLAGS_EXTFPLL=-O2
 CXXFLAGS_STD=-O2
@@ -257,11 +258,11 @@ AC_DEFINE_UNQUOTED(PANDA_INCLUDE_INSTALLDIR, "${prefix}/include", "Define where 
 AC_DEFINE_UNQUOTED(PANDA_LIB_INSTALLDIR, "${prefix}/lib", "Define where panda libraries are installed")
 AC_DEFINE_UNQUOTED(PANDA_DATA_INSTALLDIR, "${prefix}/share", "Define where panda data are installed")
 
-################################################################################
-#                                                                              #
-#                       Architecture options                                   #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                      Architecture options                                   #
+#                                                                             #
+###############################################################################
 ############### x86_64 checking ############################
 if test "$target_cpu" = x86_64; then
    AC_DEFINE(X86_64, 1, "Define if host system is 64 bits")
@@ -270,11 +271,11 @@ AM_CONDITIONAL(TARGET_X86_64, test "$target_cpu" = x86_64)
 
 
 
-################################################################################
-#                                                                              #
-#                          Configure options                                   #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                         Configure options                                   #
+#                                                                             #
+###############################################################################
 #To build a NEW_PROJECT:
 #check the configure parameters to see if the --enable-NEW_PROJECT has been activated 
 #and set the panda_USE_NEW_PROJECTD variable to $enableval which is the empty string or yes
@@ -304,11 +305,11 @@ AC_ARG_ENABLE(32bits,              [  --enable-32bits              create 32bits
 #etc/ext stuff
 AC_ARG_ENABLE(flopoco,             [  --enable-flopoco             compile FloPoCo external library],                     [panda_USE_FLOPOCO="$enableval"])
 
-################################################################################
-#                                                                              #
-#                          Variable initialization                             #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                         Variable initialization                             #
+#                                                                             #
+###############################################################################
 panda_USE_FRACTIONS=no;
 panda_USE_GENERIC_BASHBACKEND=no
 panda_USE_I386_GCC=no;
@@ -408,11 +409,11 @@ MIN_CLANG_VERSION=0.0.0
 MAX_CLANG_VERSION=100.9.9
 
 
-################################################################################
-#                                                                              #
-#                Implicated by configure options                               #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#               Implicated by configure options                               #
+#                                                                             #
+###############################################################################
 if test "x$panda_USE_ALL" = xyes; then
   panda_USE_BAMBU=yes;
   panda_USE_EUCALYPTUS=yes;
@@ -441,11 +442,11 @@ fi
 
 
 
-################################################################################
-#                                                                              #
-#                            Tool implications                                 #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                           Tool implications                                 #
+#                                                                             #
+###############################################################################
 
 if test "x$panda_USE_EXPERIMENTAL" = xyes; then
     panda_RELEASE=no;
@@ -1034,19 +1035,19 @@ fi
 
 
 
-################################################################################
-#                                                                              #
-#                      External tools and libraries                            #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                     External tools and libraries                            #
+#                                                                             #
+###############################################################################
 
-################################### A3 stuff ###################################
+################################## A3 stuff ###################################
 if test "x$panda_USE_A3" = xyes; then
   AC_CHECK_A3
 fi
 
 
-################################## bfd checks ##################################
+################################# bfd checks ##################################
 if test "x$panda_USE_LIB_OBJECT_CODE_WRAPPER" = xyes; then
   AC_CHECK_LIB([bfd],[bfd_openr],[HAVE_LIB_BFD=yes],[HAVE_LIB_BFD=no])
   if test "x$HAVE_LIB_BFD" != xyes; then
@@ -1103,53 +1104,53 @@ fi
 
 
 
-################################## GSL stuff ###################################
+################################# GSL stuff ###################################
 if test "x$panda_USE_LIB_GSL" = xyes; then
    AX_PATH_GSL(01.10,,AC_MSG_ERROR(could not find required version of GSL))
 fi
 AM_CONDITIONAL(BUILD_GSL,  test "x$panda_USE_LIB_GSL" = xyes)
 
 
-##################################### MPPB #####################################
+#################################### MPPB #####################################
 if test "x$panda_USE_MPPB" = xyes; then
    AC_CHECK_MPPB
    AC_CHECK_MPPB_ELF
 fi
 
 
-####################################### R ######################################
+###################################### R ######################################
 if test "x$panda_USE_R" = xyes; then
    AC_CHECK_R
 fi
 AM_CONDITIONAL(BUILD_R, test "x$panda_USE_R" = xyes)
 
 
-############################### Sparc elf compiler #############################
+############################## Sparc elf compiler #############################
 if test "x$panda_USE_SPARC_ELF_GCC" = xyes; then
   AC_CHECK_SPARC_ELF
   AC_DEFINE(HAVE_SPARC_ELF_GCC, 1, "Define if sparc elf compiler is present")
 fi
 
 
-################################# Synthesis tools ##############################
+################################ Synthesis tools ##############################
 if test "x$panda_USE_DESIGN_COMPILER" = xyes; then
   AC_CHECK_DC
 fi
 
 
-################################## TSIM stuff ##################################
+################################# TSIM stuff ##################################
 if test "x$panda_USE_TSIM" = xyes; then
   AC_CHECK_TSIM
 fi
 
 
-################################################################################
-#                                                                              #
-#                              ext directory                                   #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             ext directory                                   #
+#                                                                             #
+###############################################################################
 
-################################### 32bits #####################################
+################################## 32bits #####################################
 if test "x$panda_32BITS" != x; then
    CXXFLAGS+=" -m32 "
    CFLAGS+=" -m32 "
@@ -1164,7 +1165,7 @@ if test ! -d ext ; then
 fi
 
 
-############################### OpenBeagle stuff ###############################
+############################## OpenBeagle stuff ###############################
 if test "x$panda_USE_BEAGLE" = xyes; then
    AC_APPEND(ENABLE_DOC,"BEAGLE")
    $TOPSRCDIR/etc/macros/panda_config_subdir.sh ext/beagle $ac_configure_args "'CXXFLAGS=${CXXFLAGS_EXT}'" "'CFLAGS=${CFLAGS_EXT}'" "'LDFLAGS=$LDFLAGS'"
@@ -1371,18 +1372,18 @@ AM_CONDITIONAL(BUILD_TASTE, test "x$panda_USE_TASTE" = xyes)
 AM_CONDITIONAL(USE_GRLIB, test "x$panda_USE_TASTE" = xyes)
 
 
-##################################### 2lev #####################################
+#################################### 2lev #####################################
 if test "x$panda_USE_LIB_2LEV" = xyes; then
    $TOPSRCDIR/etc/macros/panda_config_subdir.sh src/logic_synthesis/2lev $ac_configure_args "'CXXFLAGS=${CXXFLAGS_EXT}'" "'CFLAGS=${CFLAGS_EXT}'" "'LDFLAGS=$LDFLAGS'" "'CUDD_CPPFLAGS=$CUDD_CPPFLAGS'" "'CUDD_LIBS=$CUDD_LIBS'"
 fi
 AM_CONDITIONAL(BUILD_LIB_2LEV, test "x$panda_USE_LIB_2LEV" = xyes)
 
 
-################################### ABC stuff ##################################
+################################## ABC stuff ##################################
 AM_CONDITIONAL(BUILD_ABC,  test "x$panda_USE_ABC" = xyes )
 
 
-################################## GLPK stuff ##################################
+################################# GLPK stuff ##################################
 LIB_SUITESPARSECONFIG=
 AM_CONDITIONAL(BUILD_GLPK, test "x$panda_USE_GLPK" = xyes)
 if test "x$panda_USE_GLPK" = xyes; then
@@ -1462,7 +1463,7 @@ AC_SUBST(VFLIB_DIR)
 
 
 
-#################################### Ext Libraries #############################
+################################### Ext Libraries #############################
 if test test "x$ac_cv_cxx_compile_cxx17_native" = xyes || test "x$ac_cv_cxx_compile_cxx17_cxx" = xyes || test "x$ac_cv_cxx_compile_cxx17_gxx" = xyes || test "x$ac_cv_cxx_compile_cxx17_cxx1z" = xyes || "x$panda_USE_ABSEIL" = xyes || test "x$panda_USE_BEAGLE" = xyes || test "x$panda_USE_COIN_OR" = xyes || test "x$panda_USE_CROSSTOOL_NG" = xyes || test "x$panda_USE_CUDD" = xyes || test "x$panda_USE_FLOPOCO" = xyes || test "x$panda_USE_LIB_FROM_LIBERTY" = xyes || test "x$panda_USE_LP_SOLVE" = xyes || test "x$panda_USE_NODELIB" = xyes || test "x$panda_USE_R" = xyes || test "x$panda_USE_RAPIDMINER" = xyes || test "x$panda_USE_SIMIT" = xyes || test "x$panda_USE_VFLIB" = xyes || test "x$build_ARM_GCC" || test "x$build_SPARC_GCC" = xyes || test "x$panda_USE_TRNG" = xyes; then
   panda_USE_LIB_EXT=yes;
 fi
@@ -1470,13 +1471,13 @@ AM_CONDITIONAL(BUILD_EXT, test "x$panda_USE_LIB_EXT" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              .                                               #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             .                                               #
+#                                                                             #
+###############################################################################
 
-################ Makefile creation #############################################
+############### Makefile creation #############################################
 AC_CONFIG_FILES(
                  Makefile
                  panda_regressions/Makefile
@@ -1493,11 +1494,11 @@ AC_CONFIG_FILES(
                  style/img/logoPoli.gif
                )
 
-################################################################################
-#                                                                              #
-#                              src/algorithms                                  #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/algorithms                                  #
+#                                                                             #
+###############################################################################
 
 if test "x$panda_USE_LIB_BOOLEAN" = xyes; then
   AC_DEFINE(HAVE_BOOLEAN_BUILT, 1, "")
@@ -1542,13 +1543,13 @@ fi
 AM_CONDITIONAL(BUILD_LIB_ALGORITHMS,  test "x$panda_USE_LIB_ALGORITHMS" = xyes)
 
 
-################################################################################
-#                                                                              #
-#                              src/bdd                                         #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/bdd                                         #
+#                                                                             #
+###############################################################################
 
-################ CUDD stuff ####################################################
+############### CUDD stuff ####################################################
 if test "x$panda_USE_LIB_BDD" = xyes; then
     AC_DEFINE(HAVE_BDD_BUILT, 1, "Define if BBD library is built")
 fi;
@@ -1556,30 +1557,30 @@ AM_CONDITIONAL(BUILD_LIB_BDD, test "x$panda_USE_LIB_BDD" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/behavior                                    #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/behavior                                    #
+#                                                                             #
+###############################################################################
 
-################################ behavior stuff ################################
+############################### behavior stuff ################################
 if test "x$panda_USE_LIB_BEHAVIOR" = xyes; then
   AC_DEFINE(HAVE_BEHAVIOR_BUILT, 1, "Define if behavior library is built")
 fi
 AM_CONDITIONAL(BUILD_LIB_BEHAVIOR, test "x$panda_USE_LIB_BEHAVIOR" = xyes)
 
-############################# host profiling stuff #############################
+############################ host profiling stuff #############################
 if test "x$panda_USE_LIB_HOST_PROFILING" = xyes; then
    AC_DEFINE(HAVE_HOST_PROFILING_BUILT, 1, "Define if host profiling library is built")
 fi
 AM_CONDITIONAL(BUILD_LIB_HOST_PROFILING, test "x$panda_USE_LIB_HOST_PROFILING" = xyes)
 
 
-################################################################################
-#                                                                              #
-#                              src/circuit                                     #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/circuit                                     #
+#                                                                             #
+###############################################################################
 
 ################ AIG stuff #########################
 if test "x$panda_USE_LIB_AIG" = xyes; then
@@ -1605,11 +1606,11 @@ AM_CONDITIONAL(BUILD_LIB_CUDA_FAULT_SIMULATION,  test "x$panda_USE_LIB_CUDA_FAUL
 
 
 
-################################################################################
-#                                                                              #
-#                              src/constants                                   #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/constants                                   #
+#                                                                             #
+###############################################################################
 if test "x$panda_USE_BAMBU_RESULTS_XML" = xyes; then
    AC_DEFINE(HAVE_BAMBU_RESULTS_XML, 1, "Define if bambu results xmls are used")
 fi
@@ -1634,13 +1635,13 @@ AM_CONDITIONAL(USE_CONSTANTS, test "x$panda_USE_CONSTANTS" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                          src/design_analysis                                 #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                         src/design_analysis                                 #
+#                                                                             #
+###############################################################################
 
-################ Design analysis stuff #########################################
+############### Design analysis stuff #########################################
 if test "x$panda_USE_LIB_DESIGN_ANALYSIS" = xyes; then
 
   AC_DEFINE(HAVE_DESIGN_ANALYSIS_BUILT, 1, "Define if design analysis library is built")
@@ -1649,17 +1650,17 @@ AM_CONDITIONAL(BUILD_LIB_DESIGN_ANALYSIS, test "x$panda_USE_LIB_DESIGN_ANALYSIS"
 
 
 
-################################################################################
-#                                                                              #
-#                            src/design_flows                                  #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                           src/design_flows                                  #
+#                                                                             #
+###############################################################################
 
-################################################################################
-#                                                                              #
-#                        src/design_flows/backend                              #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                       src/design_flows/backend                              #
+#                                                                             #
+###############################################################################
 
 ################ Backend to C #########################
 if test "x$panda_USE_LIB_TO_C" = xyes; then
@@ -1667,7 +1668,7 @@ if test "x$panda_USE_LIB_TO_C" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_LIB_TO_C,  test "x$panda_USE_LIB_TO_C" = xyes)
 
-################ Backend to DataFile ###########################################
+############### Backend to DataFile ###########################################
 if test "x$panda_USE_LIB_TO_DATAFILE" = xyes; then
   AC_DEFINE(HAVE_TO_DATAFILE_BUILT, 1, "Define if backend datafile library is built")
 fi
@@ -1687,13 +1688,13 @@ AM_CONDITIONAL(BUILD_LIB_BACKEND,  test "x$panda_USE_LIB_BACKEND" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                        src/design_flows/codesign                             #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                       src/design_flows/codesign                             #
+#                                                                             #
+###############################################################################
 
-############################# TaskGraph estimation #############################
+############################ TaskGraph estimation #############################
 AM_CONDITIONAL(BUILD_LIB_CODE_ESTIMATION, test "x$panda_USE_LIB_CODE_ESTIMATION" = xyes)
 
 ################ Mapping stuff #########################
@@ -1764,7 +1765,7 @@ if test "x$panda_USE_LIB_CODESIGN" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_LIB_CODESIGN,    test "x$panda_USE_LIB_CODESIGN" = xyes)
 
-######################### Design flows #########################################
+######################## Design flows #########################################
 if test "x$panda_USE_LIB_CODESIGN" = xyes || test "x$panda_USE_LIB_BACKEND" = xyes || test "x$panda_USE_LIB_TECHNOLOGY_MAPPING" = xyes; then
    panda_USE_LIB_DESIGN_FLOWS=yes;
 fi
@@ -1775,11 +1776,11 @@ AM_CONDITIONAL(BUILD_LIB_DESIGN_FLOWS, test "x$panda_USE_LIB_DESIGN_FLOWS" = xye
 
 
 
-################################################################################
-#                                                                              #
-#                         src/frontend_analysis                                #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                        src/frontend_analysis                                #
+#                                                                             #
+###############################################################################
 
 if test "x$panda_USE_LIB_FRONTEND_ANALYSIS" = xyes; then
   AC_DEFINE(HAVE_FRONTEND_ANALYSIS_BUILT, 1, "Define if frontend analysis library is built")
@@ -1789,25 +1790,25 @@ AM_CONDITIONAL(BUILD_LIB_FRONTEND_ANALYSIS, test "x$panda_USE_LIB_FRONTEND_ANALY
 
 
 
-################################################################################
-#                                                                              #
-#                         src/graph                                            #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                        src/graph                                            #
+#                                                                             #
+###############################################################################
 
 ################ graph stuff #########################
 AM_CONDITIONAL(BUILD_LIB_GRAPH,  test "x$panda_USE_LIB_GRAPH" = xyes)
 
 
-################################################################################
-#                                                                              #
-#                         src/HLS                                              #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                        src/HLS                                              #
+#                                                                             #
+###############################################################################
 
-#################################### HLS/backend ###############################
+################################### HLS/backend ###############################
 
-############### Bambu ##########################################################
+############## Bambu ##########################################################
 AM_CONDITIONAL(BUILD_DSE,   test "x$panda_USE_BAMBU" = xyes && test "x$panda_USE_BEAGLE" = xyes)
 
 ################ HLS stuff #########################
@@ -1822,11 +1823,11 @@ fi
 AM_CONDITIONAL(BUILD_LIB_HLS,  test "x$panda_USE_LIB_HLS" = xyes)
 
 
-################################################################################
-#                                                                              #
-#                              src/ilp                                         #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/ilp                                         #
+#                                                                             #
+###############################################################################
 
 ################ ilp stuff #########################
 if test "x$panda_USE_LIB_ILP" = xyes; then
@@ -1835,11 +1836,11 @@ fi
 AM_CONDITIONAL(BUILD_LIB_ILP,  test "x$panda_USE_LIB_ILP" = xyes)
 
 
-################################################################################
-#                                                                              #
-#                              src/logic_synthesis                             #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/logic_synthesis                             #
+#                                                                             #
+###############################################################################
 
 ################ Regularity Extraction stuff #########################
 AM_CONDITIONAL(BUILD_LIB_REGULARITY,  test "x$panda_USE_LIB_REGULARITY" = xyes)
@@ -1866,7 +1867,7 @@ if test "x$panda_USE_LIB_LOGIC_SYNTHESIS_FLOW" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_LIB_LOGIC_SYNTHESIS_FLOW,  test "x$panda_USE_LIB_LOGIC_SYNTHESIS_FLOW" = xyes)
 
-################################ Logic Synthesis ###############################
+############################### Logic Synthesis ###############################
 if test "x$panda_USE_LIB_2LEV" = xyes || test "x$panda_USE_LIB_LOGIC_SYNTHESIS_FLOW" = xyes; then
    AC_DEFINE(HAVE_LOGIC_SYNTHESIS_BUILT, 1, "Define if logic synthesis package is built")
 fi
@@ -1874,20 +1875,20 @@ AM_CONDITIONAL(BUILD_LIB_LOGIC_SYNTHESIS, test "x$panda_USE_LIB_LOGIC_SYNTHESIS"
 
 
 
-################################################################################
-#                                                                              #
-#                     src/intermediate_representations                         #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                    src/intermediate_representations                         #
+#                                                                             #
+###############################################################################
 
 
-################################## sdf_graphs ##################################
+################################# sdf_graphs ##################################
 if test "x$panda_USE_LIB_SDF_GRAPHS" = xyes; then
    AC_DEFINE(HAVE_SDF_GRAPHS_BUILT, 1, "Define if sdf graph library is built")
 fi
 AM_CONDITIONAL(BUILD_LIB_SDF_GRAPHS, test "x$panda_USE_LIB_SDF_GRAPHS" = xyes)
 
-################################# task_graphs ##################################
+################################ task_graphs ##################################
 if test "x$panda_USE_LIB_TASK_GRAPHS" = xyes; then
    AC_DEFINE(HAVE_TASK_GRAPHS_BUILT, 1, "Define if taskgraph library is built")
 fi
@@ -1915,24 +1916,24 @@ AM_CONDITIONAL(BUILD_LIB_INTERMEDIATE_REPRESENTATIONS, test "x$panda_USE_LIB_INT
 
 
 
-################################################################################
-#                                                                              #
-#                         src/ip_xact                                          #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                        src/ip_xact                                          #
+#                                                                             #
+###############################################################################
 
-############### ip_xact ########################################################
+############## ip_xact ########################################################
 if test "x$panda_USE_LIB_FROM_IPXACT" = xyes; then
   AC_DEFINE(HAVE_IPXACT_BUILT, 1, "Define if ip-xact library is built")
 fi
 
 
 
-################################################################################
-#                                                                              #
-#                              src/machine                                     #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/machine                                     #
+#                                                                             #
+###############################################################################
 
 ################ Machine stuff #########################
 if test "x$panda_USE_LIB_ARCH" = xyes; then
@@ -1942,13 +1943,13 @@ AM_CONDITIONAL(BUILD_LIB_ARCH,  test "x$panda_USE_LIB_ARCH" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/parser                                      #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/parser                                      #
+#                                                                             #
+###############################################################################
 
-################################### aadl stuff #################################
+################################## aadl stuff #################################
 if test "x$panda_USE_LIB_FROM_AADL_ASN" = xyes; then
   AC_DEFINE(HAVE_FROM_AADL_ASN_BUILT, 1, "Define if from aadl/asn library is built")
   AC_CONFIG_FILES(
@@ -2111,11 +2112,11 @@ AM_CONDITIONAL(BUILD_LIB_PARSER,  test "x$panda_USE_LIB_PARSER" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/polixml                                     #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/polixml                                     #
+#                                                                             #
+###############################################################################
 
 ################ Polixml stuff #########################
 if test "x$panda_USE_LIB_POLIXML" = xyes; then
@@ -2125,11 +2126,11 @@ AM_CONDITIONAL(BUILD_LIB_POLIXML,  test "x$panda_USE_LIB_POLIXML" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/pragma                                      #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/pragma                                      #
+#                                                                             #
+###############################################################################
 
 ################ Pragma stuff #########################
 if test "x$panda_USE_LIB_PRAGMA" = xyes; then
@@ -2139,11 +2140,11 @@ AM_CONDITIONAL(BUILD_LIB_PRAGMA,  test "x$panda_USE_LIB_PRAGMA" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/rtl                                         #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/rtl                                         #
+#                                                                             #
+###############################################################################
 
 ################ RTL #########################
 if test "x$panda_USE_LIB_RTL" = xyes; then
@@ -2153,11 +2154,11 @@ AM_CONDITIONAL(BUILD_LIB_RTL,         test "x$panda_USE_LIB_RTL" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/technology                                  #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/technology                                  #
+#                                                                             #
+###############################################################################
 
 if test "x$panda_USE_LIB_RTL_CHARACTERIZATION" = xyes; then
    AC_DEFINE(HAVE_RTL_CHARACTERIZATION_BUILT, 1, "Define if library characterization library is built")
@@ -2191,7 +2192,7 @@ if test "x$panda_USE_LIB_CMOS" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_LIB_CMOS, test "x$panda_USE_LIB_CMOS" = xyes)
 
-############################## Target Technology ###############################
+############################# Target Technology ###############################
 if test "x$panda_USE_LIB_TARGET" = xyes; then
    AC_DEFINE(HAVE_TARGET_BUILT, 1, "Define if target library is built")
 fi
@@ -2214,25 +2215,25 @@ AM_CONDITIONAL(BUILD_LIB_TECHNOLOGY,  test "x$panda_USE_LIB_TECHNOLOGY" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/tree                                        #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/tree                                        #
+#                                                                             #
+###############################################################################
 
-########################### Code Estimation ####################################
+########################## Code Estimation ####################################
 if test "x$panda_USE_LIB_CODE_ESTIMATION" = xyes; then
     AC_DEFINE(HAVE_CODE_ESTIMATION_BUILT, 1, "Define if code estimation library is built")
 fi
 AM_CONDITIONAL(BUILD_LIB_CODE_ESTIMATION, test "x$panda_USE_LIB_CODE_ESTIMATION" = xyes)
 
-########################## Tree Manipulation ###################################
+######################### Tree Manipulation ###################################
 if test "x$panda_USE_LIB_TREE_MANIPULATION" = xyes; then
     AC_DEFINE(HAVE_TREE_MANIPULATION_BUILT, 1, "Define if tree manipulation library is built")
 fi
 AM_CONDITIONAL(BUILD_LIB_TREE_MANIPULATION, test "x$panda_USE_LIB_TREE_MANIPULATION" = xyes)
 
-############################## Tree Node #######################################
+############################# Tree Node #######################################
 if test "x$panda_USE_LIB_TREE" = xyes; then
     AC_DEFINE(HAVE_TREE_BUILT, 1, "Define if tree library is built")
 fi
@@ -2240,13 +2241,13 @@ AM_CONDITIONAL(BUILD_LIB_TREE, test "x$panda_USE_LIB_TREE" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/utility                                     #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/utility                                     #
+#                                                                             #
+###############################################################################
 
-######################## Probability Distribution Stuff ########################
+####################### Probability Distribution Stuff ########################
 if test "x$panda_USE_LIB_PROBABILITY_DISTRIBUTION" = xyes; then
    AC_DEFINE(HAVE_PROBABILITY_DISTRIBUTION_BUILT, 1, "Define if probability distribution library is built")
 fi
@@ -2265,11 +2266,11 @@ AM_CONDITIONAL(BUILD_LIB_UTILITY,  test "x$panda_USE_LIB_UTILITY" = xyes)
 
 
 
-################################################################################
-#                                                                              #
-#                              src/wrapper                                     #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             src/wrapper                                     #
+#                                                                             #
+###############################################################################
 
 ################ Synthesis stuff #########################
 if test "x$panda_USE_LIB_SYNTHESIS_WRAPPER" = xyes; then
@@ -2339,7 +2340,7 @@ fi
 AM_CONDITIONAL(BUILD_SIMULATION, test "x$panda_USE_LIB_SIMULATION_WRAPPER" = xyes)
 
 
-#################################### A3 stuff ####################################
+################################# A3 stuff ####################################
 if test "x$panda_USE_A3" = xyes; then
   AC_DEFINE(HAVE_A3, 1, "Define if a3 wrapper library is built")
 fi
@@ -2403,22 +2404,22 @@ if test "x$panda_USE_LIB_VCD" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_LIB_VCD, test "x$panda_USE_LIB_VCD" = xyes)
 
-################################################################################
-#                                                                              #
-#                              ETC files                                       #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             ETC files                                       #
+#                                                                             #
+###############################################################################
   AC_CONFIG_FILES(
                   etc/Makefile
                   etc/Appimage/Makefile
                   etc/containers/Makefile
                  )
 
-################################################################################
-#                                                                              #
-#                                 devices                                      #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                                devices                                      #
+#                                                                             #
+###############################################################################
 
 AC_CONFIG_FILES(
    etc/devices/Makefile
@@ -2432,11 +2433,11 @@ AC_CONFIG_FILES(
 
 
 
-################################################################################
-#                                                                              #
-#                           latex_table_format                                 #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                          latex_table_format                                 #
+#                                                                             #
+###############################################################################
 
 if test "x$panda_USE_LIB_TO_DATAFILE" = xyes; then
   AC_CONFIG_FILES(
@@ -2445,11 +2446,11 @@ if test "x$panda_USE_LIB_TO_DATAFILE" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_LATEX_TABLE_FORMAT, test "x$panda_USE_LIB_TO_DATAFILE" = xyes)
 
-################################################################################
-#                                                                              #
-#                                gcc_plugin                                    #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                               gcc_plugin                                    #
+#                                                                             #
+###############################################################################
 
 
 
@@ -2486,6 +2487,16 @@ if test "x$panda_USE_I386_GCC" = xyes; then
    AC_CHECK_CLANG11_I386_VERSION($MIN_CLANG_VERSION,$MAX_CLANG_VERSION,$EXTRA_CLANG_OPTIONS)
    AC_CHECK_CLANG12_I386_VERSION($MIN_CLANG_VERSION,$MAX_CLANG_VERSION,$EXTRA_CLANG_OPTIONS)
    AC_CHECK_CLANGVVD_I386_VERSION($MIN_CLANG_VERSION,$MAX_CLANG_VERSION,$EXTRA_CLANG_OPTIONS)
+
+  echo i386_gcc45 is "x$I386_GCC45_PLUGIN_COMPILER"
+  echo i386_gcc46 is "x$I386_GCC46_PLUGIN_COMPILER"
+  echo i386_gcc47 is "x$I386_GCC47_PLUGIN_COMPILER"
+  echo i386_gcc48 is "x$I386_GCC48_PLUGIN_COMPILER"
+  echo i386_gcc49 is "x$I386_GCC49_PLUGIN_COMPILER"
+  echo i386_gcc5 is "x$I386_GCC5_PLUGIN_COMPILER"
+  echo i386_gcc6 is "x$I386_GCC6_PLUGIN_COMPILER"
+  echo i386_gcc7 is "x$I386_GCC7_PLUGIN_COMPILER"
+  echo i386_gcc8 is "x$I386_GCC8_PLUGIN_COMPILER"
 
    if test "x$I386_GCC45_PLUGIN_COMPILER" = x && test "x$I386_GCC46_PLUGIN_COMPILER" = x && test "x$I386_GCC47_PLUGIN_COMPILER" = x && test "x$I386_GCC48_PLUGIN_COMPILER" = x && test "x$I386_GCC49_PLUGIN_COMPILER" = x && test "x$I386_GCC5_PLUGIN_COMPILER" = x && test "x$I386_GCC6_PLUGIN_COMPILER" = x && test "x$I386_GCC7_PLUGIN_COMPILER" = x && test "x$I386_GCC8_PLUGIN_COMPILER" = x; then
       AC_MSG_ERROR("gcc with support to -m32 and plugin not found")
@@ -2727,11 +2738,11 @@ fi
 AM_CONDITIONAL(BUILD_CROSSTOOL_NG, test "x$panda_USE_CROSSTOOL_NG" = xyes)
 
 
-################################################################################
-#                                                                              #
-#                                   libbambu                                   #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                                  libbambu                                   #
+#                                                                             #
+###############################################################################
 if test "x$panda_USE_LIBBAMBU" = xyes; then
    LIBBAMBU_SRCDIR="$TOPSRCDIR/libbambu"
    AC_DEFINE_UNQUOTED(LIBBAMBU_SRCDIR, "${LIBBAMBU_SRCDIR}", "Define the directory where the libbambu files are")
@@ -2751,42 +2762,42 @@ if test "x$panda_USE_LIBBAMBU" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_LIBBAMBU, test "x$panda_USE_LIBBAMBU" = "xyes")
 
-################################################################################
-#                                                                              #
-#                                  macros                                      #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                                 macros                                      #
+#                                                                             #
+###############################################################################
 
 AC_CONFIG_FILES(etc/macros/Makefile)
 
 
 
-################################################################################
-#                                                                              #
-#                                 scripts                                      #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                                scripts                                      #
+#                                                                             #
+###############################################################################
 
-################################### MPPB #######################################
+################################## MPPB #######################################
 AM_CONDITIONAL(BUILD_MPPB, test "x$panda_USE_MPPB" = xyes)
 
 AC_CONFIG_FILES(etc/scripts/Makefile)
 
-################################################################################
-#                                                                              #
-#                              EXT files                                       #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             EXT files                                       #
+#                                                                             #
+###############################################################################
 AC_CONFIG_FILES(ext/Makefile)
 
 
-################################################################################
-#                                                                              #
-#                              FLAGS checking                                  #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                             FLAGS checking                                  #
+#                                                                             #
+###############################################################################
 
-############### Final check for static linking #############################################
+############## Final check for static linking #################################
 
 echo RML xpanda_ALLSTATIC is x$panda_ALLSTATIC
 
@@ -2839,11 +2850,11 @@ if test "x$panda_WERROR" = xyes; then
    AC_DEFINE(SKIP_WARNING_SECTIONS, 1, "Define if warnings in non-cleaned sections are allowed")
 fi
 
-################################################################################
-#                                                                              #
-#                                Autoheader                                    #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                               Autoheader                                    #
+#                                                                             #
+###############################################################################
 
 cd $TOPSRCDIR && autoheader configure.ac && cp lconfig.h.in $BUILDDIR && cd $BUILDDIR
 AC_CONFIG_HEADERS(lconfig.h:lconfig.h.in)
@@ -2970,11 +2981,11 @@ fi
 
 
 
-################################################################################
-#                                                                              #
-#                             Final generation                                 #
-#                                                                              #
-################################################################################
+###############################################################################
+#                                                                             #
+#                            Final generation                                 #
+#                                                                             #
+###############################################################################
 
 AC_SUBST(CXXFLAGS)
 AC_SUBST(CFLAGS)

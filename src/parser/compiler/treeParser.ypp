@@ -663,7 +663,10 @@ bool pred;
       | raw_unit node
       ;
    version : TOK_BISON_GCC_VERSION
-             string_id {data->gcc_version = data->curr_string;}
+             string_id {
+std::cout<<"tP.y: got version '"<<data->curr_string<<"'\n";
+data->gcc_version = data->curr_string;
+}
              TOK_BISON_PLUGIN_VERSION
              string_id
              {

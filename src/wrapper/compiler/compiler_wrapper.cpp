@@ -814,6 +814,7 @@ void CompilerWrapper::CompileFile(const std::string& original_file_name, std::st
       START_TIME(gcc_compilation_time);
    }
 #endif
+std::cout<<"CW::CF PS(,"<<command<<",)\n";
    int ret = PandaSystem(Param, command, gcc_output_file_name);
 #if !NPROFILE
    if(output_level >= OUTPUT_LEVEL_VERBOSE)

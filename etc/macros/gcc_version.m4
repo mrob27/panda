@@ -189,6 +189,8 @@ AC_DEFUN([AC_CHECK_GCC46_I386_VERSION],[
        ac_gcc46="$withval"
     ])
 
+   echo xi386_g ... 46
+
 dnl switch to c
 AC_LANG_PUSH([C])
 
@@ -197,21 +199,22 @@ if test "x$ac_gcc46" = x; then
 else
    GCC_TO_BE_CHECKED=$ac_gcc46;
 fi
-
+echo xi386_gcc46 checking "$GCC_TO_BE_CHECKED"
 echo "looking for gcc 4.6..."
 for compiler in $GCC_TO_BE_CHECKED; do
    if test -f $compiler; then
       echo "checking $compiler..."
       dnl check for gcc
       I386_GCC46_VERSION=`$compiler -dumpspecs | grep \*version -A1 | tail -1`
+   echo xi386_gcc46 version is "$I386_GCC46_VERSION"
       I386_GCC46_FULL_VERSION=`$compiler --version`
       AS_VERSION_COMPARE($1, [4.6.0], MIN_GCC46=[4.6.0], MIN_GCC46=$1, MIN_GCC46=$1)
       AS_VERSION_COMPARE([4.7.0], $2, MAX_GCC46=[4.7.0], MAX_GCC46=$2, MAX_GCC46=$2)
-      AS_VERSION_COMPARE($I386_GCC46_VERSION, $MIN_GCC46, echo "checking $compiler >= $MIN_GCC46... no"; min=no, echo "checking $compiler >= $MIN_GCC46... yes"; min=yes, echo "checking $compiler >= $MIN_GCC46... yes"; min=yes)
+      AS_VERSION_COMPARE($I386_GCC46_VERSION, $MIN_GCC46, echo "xi386_g1 checking $compiler >= $MIN_GCC46... no"; min=no, echo "xi386_g2 checking $compiler >= $MIN_GCC46... yes"; min=yes, echo "xi386_g3 checking $compiler >= $MIN_GCC46... yes"; min=yes)
       if test "$min" = "no" ; then
          continue;
       fi
-      AS_VERSION_COMPARE($I386_GCC46_VERSION, $MAX_GCC46, echo "checking $compiler < $MAX_GCC46... yes"; max=yes, echo "checking $compiler < $MAX_GCC46... no"; max=no, echo "checking $compiler < $MAX_GCC46... no"; max=no)
+      AS_VERSION_COMPARE($I386_GCC46_VERSION, $MAX_GCC46, echo "xi386_g4 checking $compiler < $MAX_GCC46... yes"; max=yes, echo "xi386_g5 checking $compiler < $MAX_GCC46... no"; max=no, echo "xi386_g6 checking $compiler < $MAX_GCC46... no"; max=no)
       if test "$max" = "no" ; then
          continue;
       fi
@@ -222,15 +225,18 @@ for compiler in $GCC_TO_BE_CHECKED; do
          break;
       fi
       echo "checking plugin directory...$I386_GCC46_PLUGIN_DIR"
+   echo xi386_gcc46 plugin dir is "$I386_GCC46_PLUGIN_DIR"
       gcc_file=`basename $I386_GCC46_EXE`
       gcc_dir=`dirname $I386_GCC46_EXE`
       cpp=`echo $gcc_file | sed s/gcc/cpp/`
       I386_CPP46_EXE=$gcc_dir/$cpp
       if test -f $I386_CPP46_EXE; then
          echo "checking cpp...$I386_CPP46_EXE"
+   echo xi386_gcc46 cpp is good
       else
          echo "checking cpp...no"
          I386_GCC46_EXE=""
+   echo xi386_gcc46 cpp is bad
          continue
       fi
       ac_save_CC="$CC"
@@ -250,14 +256,19 @@ for compiler in $GCC_TO_BE_CHECKED; do
       LIBS=$ac_save_LIBS
       if test "x$I386_GCC46_MULTIARCH" != xyes; then
          echo "checking support to -m32... no"
-         continue
+   echo xi386_gcc46 m32 failed
+dnf         continue
+      else
+   echo xi386_gcc46 m32 maybe success
       fi
       gpp=`echo $gcc_file | sed s/gcc/g\+\+/`
       I386_GPP46_EXE=$gcc_dir/$gpp
       if test -f $I386_GPP46_EXE; then
          echo "checking g++...$I386_GPP46_EXE"
+   echo xi386_gcc46 gpp is good
       else
          echo "checking g++...no"
+   echo xi386_gcc46 gpp is bad
          continue
       fi
       cat > plugin_test.c <<PLUGIN_TEST
@@ -281,16 +292,21 @@ for compiler in $GCC_TO_BE_CHECKED; do
          return 0;
       }
 PLUGIN_TEST
-      for plugin_compiler in $I386_GCC46_EXE $I386_GPP46_EXE; do
+      echo xi386_gcc46a is "x$I386_GCC46_EXE"
+      echo xi386_gpp46a is "x$I386_GPP46_EXE"
+      dnl for plugin_compiler in $I386_GCC46_EXE $I386_GPP46_EXE; do
+      for plugin_compiler in $I386_GCC46_EXE; do
          if test -f plugin_test.so; then
             rm plugin_test.so
          fi
          $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC46_PLUGIN_DIR/include 2> /dev/null
          if test ! -f plugin_test.so; then
             echo "checking $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC46_PLUGIN_DIR/include... no"
+      echo xi386_gpp46 plugin fail1 cmd was "$plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC46_PLUGIN_DIR/include"
             continue
          fi
          echo "checking $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC46_PLUGIN_DIR/include... yes"
+      echo xi386_gpp46 plugin success1 with "$plugin_compiler"
          ac_save_CC="$CC"
          ac_save_CFLAGS="$CFLAGS"
          CC=$plugin_compiler
@@ -302,13 +318,16 @@ PLUGIN_TEST
                ]])],
          I386_GCC46_PLUGIN_COMPILER=$plugin_compiler,I386_GCC46_PLUGIN_COMPILER=)
          AC_LANG_POP([C])
+     echo xi386_gcc46b is "x$I386_GCC46_PLUGIN_COMPILER"
          CC=$ac_save_CC
          CFLAGS=$ac_save_CFLAGS
          #If plugin compilation fails, skip this executable
          if test "x$I386_GCC46_PLUGIN_COMPILER" = x; then
+      echo xi386_gpp46 plugin fail2
             continue
          fi
-         echo "Looking for gengtype"
+      echo xi386_gpp46 plugin success2
+         echo "Looking for gcc46 gengtype"
          I386_GCC46_GENGTYPE=`$I386_GCC46_EXE -print-file-name=gengtype`
          if test "x$I386_GCC46_GENGTYPE" = "xgengtype"; then
             I386_GCC46_GENGTYPE=`$I386_GCC46_EXE -print-file-name=plugin/gengtype`
@@ -317,6 +336,7 @@ PLUGIN_TEST
                I386_GCC46_GENGTYPE=`find $I386_GCC46_ROOT_DIR -name gengtype | head -n1`
                if test "x$I386_GCC46_GENGTYPE" = "x"; then
                   I386_GCC46_PLUGIN_COMPILER=
+         echo xi386_gcc46c is "x$I386_GCC46_PLUGIN_COMPILER"
                   continue
                fi
             fi
@@ -327,6 +347,7 @@ PLUGIN_TEST
             I386_GCC46_GTYPESTATE=`$I386_GCC46_EXE -print-file-name=plugin/gtype.state`
             if test "x$I386_GCC46_GTYPESTATE" = "xplugin/gtype.state"; then
                I386_GCC46_PLUGIN_COMPILER=
+         echo xi386_gcc46d is "x$I386_GCC46_PLUGIN_COMPILER"
                continue
             fi
          fi
@@ -392,6 +413,8 @@ AC_DEFUN([AC_CHECK_GCC47_I386_VERSION],[
        ac_gcc47="$withval"
     ])
 
+   echo xi386_g ... 47
+
 dnl switch to c
 AC_LANG_PUSH([C])
 
@@ -402,19 +425,21 @@ else
 fi
 
 echo "looking for gcc 4.7..."
+echo xi386_gcc47 checking "$GCC_TO_BE_CHECKED"
 for compiler in $GCC_TO_BE_CHECKED; do
    if test -f $compiler; then
       echo "checking $compiler..."
       dnl check for gcc
       I386_GCC47_VERSION=`$compiler -dumpspecs | grep \*version -A1 | tail -1`
+   echo xi386_gcc47 version is "$I386_GCC47_VERSION"
       I386_GCC47_FULL_VERSION=`$compiler --version`
       AS_VERSION_COMPARE($1, [4.7.0], MIN_GCC47=[4.7.0], MIN_GCC47=$1, MIN_GCC47=$1)
       AS_VERSION_COMPARE([4.8.0], $2, MAX_GCC47=[4.8.0], MAX_GCC47=$2, MAX_GCC47=$2)
-      AS_VERSION_COMPARE($I386_GCC47_VERSION, $MIN_GCC47, echo "checking $compiler >= $MIN_GCC47... no"; min=no, echo "checking $compiler >= $MIN_GCC47... yes"; min=yes, echo "checking $compiler >= $MIN_GCC47... yes"; min=yes)
+      AS_VERSION_COMPARE($I386_GCC47_VERSION, $MIN_GCC47, echo "xi386_g1 checking $compiler >= $MIN_GCC47... no"; min=no, echo "xi386_g2 checking $compiler >= $MIN_GCC47... yes"; min=yes, echo "xi386_g3 checking $compiler >= $MIN_GCC47... yes"; min=yes)
       if test "$min" = "no" ; then
          continue;
       fi
-      AS_VERSION_COMPARE($I386_GCC47_VERSION, $MAX_GCC47, echo "checking $compiler < $MAX_GCC47... yes"; max=yes, echo "checking $compiler < $MAX_GCC47... no"; max=no, echo "checking $compiler < $MAX_GCC47... no"; max=no)
+      AS_VERSION_COMPARE($I386_GCC47_VERSION, $MAX_GCC47, echo "xi386_g4 checking $compiler < $MAX_GCC47... yes"; max=yes, echo "xi386_g5 checking $compiler < $MAX_GCC47... no"; max=no, echo "xi386_g6 checking $compiler < $MAX_GCC47... no"; max=no)
       if test "$max" = "no" ; then
          continue;
       fi
@@ -425,23 +450,28 @@ for compiler in $GCC_TO_BE_CHECKED; do
          break;
       fi
       echo "checking plugin directory...$I386_GCC47_PLUGIN_DIR"
+   echo xi386_gcc47 plugin dir is "$I386_GCC47_PLUGIN_DIR"
       gcc_file=`basename $I386_GCC47_EXE`
       gcc_dir=`dirname $I386_GCC47_EXE`
       cpp=`echo $gcc_file | sed s/gcc/cpp/`
       I386_CPP47_EXE=$gcc_dir/$cpp
       if test -f $I386_CPP47_EXE; then
          echo "checking cpp...$I386_CPP47_EXE"
+   echo xi386_gcc47 cpp is good
       else
          echo "checking cpp...no"
          I386_GCC47_EXE=""
+   echo xi386_gcc47 cpp is bad
          continue
       fi
       gpp=`echo $gcc_file | sed s/gcc/g\+\+/`
       I386_GPP47_EXE=$gcc_dir/$gpp
       if test -f $I386_GPP47_EXE; then
          echo "checking g++...$I386_GPP47_EXE"
+   echo xi386_gpp47 gpp is good
       else
          echo "checking g++...no"
+   echo xi386_gpp47 gpp is bad
          continue
       fi
       ac_save_CC="$CC"
@@ -462,8 +492,10 @@ for compiler in $GCC_TO_BE_CHECKED; do
       if test "x$I386_GCC47_M32" == xyes; then
          AC_DEFINE(HAVE_I386_GCC47_M32,1,[Define if gcc 4.7 supports -m32 ])
          echo "checking support to -m32... yes"
+   echo xi386_gcc47 m32 success
       else
          echo "checking support to -m32... no"
+   echo xi386_gcc47 m32 failed
       fi
       ac_save_CC="$CC"
       ac_save_CFLAGS="$CFLAGS"
@@ -483,8 +515,10 @@ for compiler in $GCC_TO_BE_CHECKED; do
       if test "x$I386_GCC47_MX32" == xyes; then
          AC_DEFINE(HAVE_I386_GCC47_MX32,1,[Define if gcc 4.7 supports -mx32 ])
          echo "checking support to -mx32... yes"
+   echo xi386_gcc47 mx32 success
       else
          echo "checking support to -mx32... no"
+   echo xi386_gcc47 mx32 failed
       fi
       ac_save_CC="$CC"
       ac_save_CFLAGS="$CFLAGS"
@@ -528,6 +562,8 @@ for compiler in $GCC_TO_BE_CHECKED; do
          return 0;
       }
 PLUGIN_TEST
+      echo xi386_gcc47a is "x$I386_GCC47_EXE"
+      echo xi386_gpp47a is "x$I386_GPP47_EXE"
       for plugin_compiler in $I386_GCC47_EXE $I386_GPP47_EXE; do
          if test -f plugin_test.so; then
             rm plugin_test.so
@@ -535,9 +571,11 @@ PLUGIN_TEST
          $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC47_PLUGIN_DIR/include 2> /dev/null
          if test ! -f plugin_test.so; then
             echo "checking $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC47_PLUGIN_DIR/include... no"
+      echo xi386_gpp47 plugin fail1 cmd was $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC47_PLUGIN_DIR/include
             continue
          fi
          echo "checking $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC47_PLUGIN_DIR/include... yes"
+      echo xi386_gpp47 plugin success1 cmd was $plugin_compiler -I$TOPSRCDIR/etc/gcc_plugin/ -fPIC -shared plugin_test.c -o plugin_test.so -I$I386_GCC47_PLUGIN_DIR/include
          ac_save_CC="$CC"
          ac_save_CFLAGS="$CFLAGS"
          CC=$plugin_compiler
@@ -549,13 +587,16 @@ PLUGIN_TEST
                ]])],
          I386_GCC47_PLUGIN_COMPILER=$plugin_compiler,I386_GCC47_PLUGIN_COMPILER=)
          AC_LANG_POP([C])
+     echo xi386_gcc47b is "x$I386_GCC47_PLUGIN_COMPILER"
          CC=$ac_save_CC
          CFLAGS=$ac_save_CFLAGS
          #If plugin compilation fails, skip this executable
          if test "x$I386_GCC47_PLUGIN_COMPILER" = x; then
+      echo xi386_gpp47 plugin fail2
             continue
          fi
-         echo "Looking for gengtype"
+      echo xi386_gpp47 plugin success2
+         echo "Looking for gcc47 gengtype"
          I386_GCC47_GENGTYPE=`$I386_GCC47_EXE -print-file-name=gengtype`
          if test "x$I386_GCC47_GENGTYPE" = "xgengtype"; then
             I386_GCC47_GENGTYPE=`$I386_GCC47_EXE -print-file-name=plugin/gengtype`
@@ -564,6 +605,7 @@ PLUGIN_TEST
                I386_GCC47_GENGTYPE=`find $I386_GCC47_ROOT_DIR -name gengtype | head -n1`
                if test "x$I386_GCC47_GENGTYPE" = "x"; then
                   I386_GCC47_PLUGIN_COMPILER=
+         echo xi386_gcc47c is "x$I386_GCC47_PLUGIN_COMPILER"
                   continue
                fi
             fi
@@ -574,6 +616,7 @@ PLUGIN_TEST
             I386_GCC47_GTYPESTATE=`$I386_GCC47_EXE -print-file-name=plugin/gtype.state`
             if test "x$I386_GCC47_GTYPESTATE" = "xplugin/gtype.state"; then
                I386_GCC47_PLUGIN_COMPILER=
+         echo xi386_gcc47d is "x$I386_GCC47_PLUGIN_COMPILER"
                continue
             fi
          fi
@@ -639,6 +682,8 @@ AC_DEFUN([AC_CHECK_GCC48_I386_VERSION],[
     [
        ac_gcc48="$withval"
     ])
+
+   echo xi386_g ... 48
 
 dnl switch to c
 AC_LANG_PUSH([C])
@@ -803,7 +848,7 @@ PLUGIN_TEST
          if test "x$I386_GCC48_PLUGIN_COMPILER" = x; then
             continue
          fi
-         echo "Looking for gengtype"
+         echo "Looking for gcc48 gengtype"
          I386_GCC48_GENGTYPE=`$I386_GCC48_EXE -print-file-name=gengtype`
          if test "x$I386_GCC48_GENGTYPE" = "xgengtype"; then
             I386_GCC48_GENGTYPE=`$I386_GCC48_EXE -print-file-name=plugin/gengtype`
@@ -1072,7 +1117,7 @@ PLUGIN_TEST
          if test "x$I386_GCC49_PLUGIN_COMPILER" = x; then
             continue
          fi
-         echo "Looking for gengtype"
+         echo "Looking for gcc49 gengtype"
          I386_GCC49_GENGTYPE=`$I386_GCC49_EXE -print-file-name=gengtype$ac_exeext`
          if test "x$I386_GCC49_GENGTYPE" = "xgengtype$ac_exeext"; then
             I386_GCC49_GENGTYPE=`$I386_GCC49_EXE -print-file-name=plugin/gengtype$ac_exeext`
@@ -1315,7 +1360,7 @@ PLUGIN_TEST
          if test "x$I386_GCC5_PLUGIN_COMPILER" = x; then
             continue
          fi
-         echo "Looking for gengtype"
+         echo "Looking for gcc5 gengtype"
          I386_GCC5_GENGTYPE=`$I386_GCC5_EXE -print-file-name=gengtype`
          if test "x$I386_GCC5_GENGTYPE" = "xgengtype"; then
             I386_GCC5_GENGTYPE=`$I386_GCC5_EXE -print-file-name=plugin/gengtype`
@@ -1558,7 +1603,7 @@ PLUGIN_TEST
          if test "x$I386_GCC6_PLUGIN_COMPILER" = x; then
             continue
          fi
-         echo "Looking for gengtype"
+         echo "Looking for gcc6 gengtype"
          I386_GCC6_GENGTYPE=`$I386_GCC6_EXE -print-file-name=gengtype`
          if test "x$I386_GCC6_GENGTYPE" = "xgengtype"; then
             I386_GCC6_GENGTYPE=`$I386_GCC6_EXE -print-file-name=plugin/gengtype`
@@ -1801,7 +1846,7 @@ PLUGIN_TEST
          if test "x$I386_GCC7_PLUGIN_COMPILER" = x; then
             continue
          fi
-         echo "Looking for gengtype"
+         echo "Looking for gcc7 gengtype"
          I386_GCC7_GENGTYPE=`$I386_GCC7_EXE -print-file-name=gengtype`
          if test "x$I386_GCC7_GENGTYPE" = "xgengtype"; then
             I386_GCC7_GENGTYPE=`$I386_GCC7_EXE -print-file-name=plugin/gengtype`
@@ -2056,7 +2101,7 @@ PLUGIN_TEST
          if test "x$I386_GCC8_PLUGIN_COMPILER" = x; then
             continue
          fi
-         echo "Looking for gengtype"
+         echo "Looking for gcc8 gengtype"
          I386_GCC8_GENGTYPE=`$I386_GCC8_EXE -print-file-name=gengtype$ac_exeext`
          if test "x$I386_GCC8_GENGTYPE" = "xgengtype$ac_exeext"; then
             I386_GCC8_GENGTYPE=`$I386_GCC8_EXE -print-file-name=plugin/gengtype$ac_exeext`
