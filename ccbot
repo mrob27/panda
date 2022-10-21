@@ -50,6 +50,14 @@ INCOMPLETE
 
 to get instructions for building GCC 8 and LLVM 11.
 
+UTILITY COMMANDS
+
+  -cclocal status gcc 7
+                Look for a locally-built GCC 7, and print an error message
+                if it does not exist or was not built/installed etc.
+  -ccsystem     List system-installed C compilers
+  -distro       Summarise the Linux type and version
+
 `;
 
 my $unused_block_header = q`
@@ -360,29 +368,39 @@ Building Clang 11 on Fedora 35:
 
 Required packages:
 
-  sudo dnf install cmake
+  sudo dnf install cmake3  # or yum install cmake3
+  Similarly for a GCC version 5.1 or newer, e.g.:
+    devtoolset-9-gcc devtoolset-9-gcc-c++ (on CentOS)
 
   cd
   # if you already have a directory 'clang11', rename it first
   mkdir llvm11-temp
   cd llvm11-temp
   time git clone 'https://github.com/llvm/llvm-project.git'
+  # takes about 4m41s
   cd
   mv llvm11-temp/llvm-project ./clang11
   rmdir llvm11-temp
   cd clang11
   time git checkout 43ff75f2c3fe    # tagged "llvmorg-11.0.1"
+  # takes about 13s
   # edit llvm/utils/benchmark/src/benchmark_register.h and add:
   #   #include <limits>
   mkdir build
   cd build
   time cmake3 -G 'Unix Makefiles' -Wno-dev -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_COMPILER=${CC} \       # from 'ccbot -ccsystem'
+    -DCMAKE_CXX_COMPILER=${CXX} \
     -DLLVM_ENABLE_PROJECTS=clang \
     -DCMAKE_INSTALL_PREFIX=$HOME/clang-11 \
     -DLLVM_PARALLEL_COMPILE_JOBS=4 -DLLVM_PARALLEL_LINK_JOBS=1   ../llvm
+  # takes about 28s
   (time make && echo make-build success)
+  ./bin/clang --version  # Should print "clang version 11.0.1 ..."
+  # takes about 2h 41m
   (time make install && echo make-inst success)
-  $HOME/clang-11/bin/clang --version  
+  # takes about 16s
+  $HOME/clang-11/bin/clang --version
 
 If the 'make' succeeds, there will be an executable in
 $HOME/clang11/build/bin/clang and if you run it with the --version
@@ -397,6 +415,39 @@ To 'clean' the Clang 11 directory, just remove everything inside the
 `;
 
 $| = 1;
+
+# &sys.error_check runs a command, tests $? and $! and prints appropriate
+# messages if there was an error.
+sub sys_error_check
+{
+  my($cmd, $est_time) = @_;
+  my($ques, $excl, $tst, $elap);
+
+  print "running command:\n  $cmd\n";
+  if (($est_time < 0) || ($est_time > 10)) {
+    print "Estimated time: $est_time sec\n";
+    print "Hit <enter> to proceed: "; <>;
+  }
+  $tst = time;
+    system($cmd); $ques = $?; $excl = $!;
+  $elap = time - $tst;
+  $cmd = '#' . $cmd . '#';
+  if ($ques == -1) {
+    die "ccbot: command failed to execute:\n  $cmd\n  error $excl\n";
+  } elsif ($ques & 127) {
+    die sprintf("ccbot: command died:\n  $cmd\n  signal %d, %s coredump\n",
+                        ($ques & 127), (($ques & 128) ? 'with' : 'without'));
+  } else {
+    $ques >>= 8;
+    if ($ques == 0) {
+      # success
+    } else {
+      die "ccbot: command exited abnormally\n  $cmd\n  result: $ques\n";
+    }
+  }
+  print "  finished in $elap seconds.\n";
+  return(0);
+} # End of sys.error_check
 
 sub self_bdistro
 {
@@ -456,12 +507,13 @@ sub self_bdistro
   exit(0);
 } # End of self.bdistro
 
+# List the system-installed compilers and versions thereof
 sub cmd_ccsystem
 {
   my($d, $f, $bin);
 
-  $trydirs = ":/usr/bin:";
-  $trynames = ":cc:clang:gcc:";
+  $trydirs = ":/usr/bin:/opt/rh/devtoolset-9/root/usr/bin:";
+  $trynames = ":cc:clang:gcc:g++:";
   foreach $d (split(/:/, $trydirs)) {
     if ($d ne '') {
       foreach $f (split(':', $trynames)) {
@@ -469,14 +521,20 @@ sub cmd_ccsystem
           $bin = "$d/$f";
           $v1 = $v2 = '';
           if (-x $bin) {
-            $v1 = `$bin --version`;
-            if ($v1 =~ m|\(GCC\) +([.0-9]+)|o) {
+            $v1 = `$bin --version 2>&1`;
+            if ($v1 =~ m|g?cc \(GCC\) +([.0-9]+)|o) {
+              $v2 = "gcc $1";
+            } elsif ($v1 =~ m|[cg][+][+] \(GCC\) +([.0-9]+)|o) {
               $v2 = "gcc $1";
             } elsif ($v1 =~ m|clang +version +([.0-9]+)|o) {
+              $v2 = "clang $1";
+            } elsif ($v1 =~ m|LLVM +version +([.0-9]+)|o) {
               $v2 = "clang $1";
             }
             if ($v2 ne '') {
               print "$bin: $v2\n";
+            } else {
+              print "$bin: unknown version\n";
             }
           }
         }
@@ -490,11 +548,11 @@ sub cmd_cclocal_status
 {
   my($type, $vers) = @_;
   my($ccdir, $vi, $ccbin);
-  if (!(",gcc,clang." =~ m/,$type,/)) {
+  if (!(",gcc,clang," =~ m/,$type,/)) {
     die "cclocal: invalid type '$type'\n";
   }
   $vi = int($vers + 0);
-  if (($vi < 8) || ($vi > 13) || ($vi != $vers)) {
+  if (($vi < 5) || ($vi > 13) || ($vi != $vers)) {
     die "cclocal: ans0001 version '$vers' is out of bounds or not integer\n";
   }
   $ccdir = $ENV{'HOME'} . "/$type$vi";
@@ -504,28 +562,39 @@ sub cmd_cclocal_status
   if (-e $ccdir) {
     die "cclocal: ans0003 $ccdir exists but is not a directory.\n";
   }
-  $ccbin = ($type eq 'gcc') ? "$ccdir/bin/gcc"
+  $ccbin = ($type eq 'gcc') ? "$ccdir/build/gcc/xgcc"
                             : "$ccdir/build/bin/clang";
   if (!(-x $ccbin)) {
     die "cclocal: ans0004 $ccbin is not present.\n";
   }
-  if (-e $ccdir) {
+  if (-e $ccbin) {
     die "cclocal: ans0005 $ccbin exists but is not executable.\n";
   }
+  return($ccbin);
 } # End of cmd.cclocal.status
 
-# Disable exactly one matching line in a file
-sub patch_dis1
+sub setfile
 {
-  my($pat) = @_;
+  my($f) = @_;
+  if(!(-f $f)) {
+    die "set.file: There is no file '$f'\n";
+  }
+  $g_setfile = $f;
+} # End of set.file
+
+# Disable N matching lines in a file
+sub patch_dis_n
+{
+  my($pat, $n) = @_;
   my($IN, $OUT, $l, $tfil, $nm);
 
   if ($g_setfile eq '') {
-    die "patch_dis1: no setfile() was done\n";
+    die "patch_dis_n: no setfile() was done\n";
   }
   if(!(-f $g_setfile)) {
-    die "patch_dis1: There is no file '#g_setfile'\n";
+    die "patch_dis_n: There is no file '#g_setfile'\n";
   }
+  print "patch_dis_n: attempting to disable $n instance(s) of /$pat/\n";
   open($IN, $g_setfile);
   $tfil = "ccbot-pd1-temp.txt";
   open($OUT, "> $tfil");
@@ -544,14 +613,23 @@ sub patch_dis1
   }
   close $IN;
   close $OUT;
-  if ($nm == 1) {
+  if ($nm == $n) {
     # We found exactly the number of lines we hoped to find.
-    system("cat $tfil > $g_setfile");
+    system("mv $tfil $g_setfile");
   } elsif ($nm < 1) {
-    die "patch.dis1: Pattern /$pat/ was not found in $g_setfile\n";
+    die "patch.dis1: Pattern /$pat/ was not found at all in $g_setfile\n";
+  } elsif ($nm < $n) {
+    die "patch.dis1: Pattern /$pat/ was found fewer than $n times $g_setfile\n";
   } else {
-    die "patch.dis1: Pattern /$pat/ was found more than once in $g_setfile\n";
+    die "patch.dis1: Pattern /$pat/ was found more than $n times in $g_setfile\n";
   }
+} # End of patch.dis_n
+
+# Disable exactly one matching line in a file
+sub patch_dis1
+{
+  my($pat) = @_;
+  &patch_dis_n($pat, 1);
 } # End of patch.dis1
 
 sub pushdir
@@ -566,10 +644,207 @@ sub pushdir
   chdir($d);
 } # End of push.dir
 
-#  pushdir('src'); # allows pop later
-#  chdir('lib...');
-#  setfile('sanitizer_platform_limits_posix.h'); # set file for patch_* actions
-#  patch_dis1('extern unsigned struct_cyclades_monitor_sz'); # disable
+sub popdir
+{
+  if ($g_dirsp <= 0) {
+    die "popdir: Nothing left on the dir stack\n";
+  }
+  $g_dirsp--;
+  chdir($g_dirstack[$g_dirsp]);
+} # End of pop.dir
+
+sub assert_in_gcc_gitdir
+{
+  my($f1);
+  if ($f1 = ".git/config", !(-f $f1)) {
+    die "assert_in_gcc_gitdir: there is no $f1\n";
+  }
+  if ($f1 = "gcc/gcc-main.c", (-f $f1)) {
+    # Okay
+  } elsif ($f1 = "gcc/gcc-main.cc", (-f $f1)) {
+    # Also okay
+  } else {
+    die "assert_in_gcc_gitdir: there is no $f1\n";
+  }
+} # End of assert.in_gcc_gitdir
+
+# Patch GCC source to remove dependency on "cyclades" references in the
+# kernel headers
+sub patch_gcc_cyclades_1
+{
+  &assert_in_gcc_gitdir();
+  &pushdir('.'); # allows pop later
+  chdir('libsanitizer/sanitizer_common');
+  &setfile('sanitizer_platform_limits_posix.h');
+    &patch_dis1('extern unsigned struct_cyclades_monitor_sz');
+    &patch_dis_n('extern unsigned IOCTL_CY', 9);
+  &setfile('sanitizer_platform_limits_posix.cc');
+    &patch_dis1('include <linux/cyclades.h>');
+    &patch_dis1('unsigned struct_cyclades_monitor_sz = ');
+    &patch_dis_n('unsigned IOCTL_CY', 9);
+  &setfile('sanitizer_common_interceptors_ioctl.inc');
+    &patch_dis_n('_[(]CY', 9);
+  &popdir();
+} # End of patch.gcc_cyclades_1
+
+sub clean_gcc_build_dir
+{
+  my($f);
+
+  foreach $f (split (/[ \r\n\t]+/, qq`
+    build-x86_64-linux-gnu build-x86_64-pc-linux-gnu
+    build-x86_64-redhat-linux isl gmp mpc mpfr x86_64-pc-linux-gnu
+    x86_64-redhat-linux zlib fixincludes gcc intl libbacktrace libcc1 libcpp
+    libdecnumber libiberty lto-plugin prev-fixincludes prev-gcc prev-intl
+    prev-libbacktrace prev-libcpp prev-libdecnumber prev-libiberty
+    prev-lto-plugin prev-x86_64-linux-gnu stage1-fixincludes stage1-gcc
+    stage1-intl stage1-libbacktrace stage1-libcpp stage1-libdecnumber
+    stage1-libiberty stage1-lto-plugin stage1-x86_64-linux-gnu
+    x86_64-linux-gnu Makefile compare config.log config.status serdep.tmp
+    stage_current stage_final stage_last p1.txt
+  `)) {
+    # Sanity-check the list items, partly to prevent deleting things outside
+    # the current directory
+    if ($f =~ m/^[ \t]/) {
+      die "clean.gcc_build_dir: Bad item name '$f' (starts with blank)\n";
+    } elsif ($f =~ m/^\./) {
+      die "clean.gcc_build_dir: Bad item name '$f' (starts with a dot)\n";
+    } elsif ($f =~ m/\.\./) {
+      die "clean.gcc_build_dir: Bad item name '$f' (contains '..')\n";
+    } elsif (-f $f) {
+      &sys_error_check("rm $f", -1);
+    } elsif (-d $f) {
+      &sys_error_check("rm -rf $f", -1);
+    }
+  }
+} # End of clean.gcc_build_dir
+
+sub gcc_config_v8
+{
+  &sys_error_check("../src/configure -v"
+    . " --build=x86_64-linux-gnu"
+    . " --disable-bootstrap"
+    . " --with-multilib-list=m32,m64"
+    . " --enable-checking=release"
+    . " --enable-languages=c,c++,lto"
+    . " --prefix=$hd/gcc-8"
+    . " --target=x86_64-linux-gnu"
+    . " --with-bugurl=file:///usr/share/doc/gcc-8/README.Bugs"
+    . " --with-gcc-major-version-only"
+    . " --with-pkgversion='Morobu-8.5.0'"
+    . " --with-system-zlib"
+    . " --without-cuda-driver"
+    . " --without-included-gettext"
+  , -1);
+} # End of gcc.config_v8
+
+sub bld_gcc_8
+{
+  my($gdir, $idir, $sigfile, $bdir);
+
+  # Make the source+build directory
+  $gdir = "$hd/gcc8";
+  $sigfile = "$gdir/.ccbot";
+  $gitfile = "$gdir/src/.git/config";
+  if ((-d $gdir) && (-f $sigfile) && (-f $gitfile)) {
+    # All set
+  } elsif ((-d $gdir) && (-f $sigfile)) {
+    die "bld.gcc_8: $gdir exists but has no gitfile\n";
+  } elsif (-d $gdir) {
+    die "bld.gcc_8: $gdir exists but has no sigfile ($sigfile)\n";
+  } else {
+    # Nothing has been done yet
+    &sys_error_check("mkdir $gdir");
+    chdir($gdir);
+    &sys_error_check("git clone 'https://github.com/gcc-mirror/gcc.git'", 300);
+    &sys_error_check("mv gcc src");
+    &sys_error_check("touch $sigfile");
+  }
+
+  # Checkout the version we need
+  chdir("$gdir/src");
+#  &sys_error_check("git checkout 4212a6a3e44", 8);
+
+  # Get the GCC-supplied dependent library source code
+  chdir("$gdir/src");
+#  &sys_error_check("./contrib/download_prerequisites", 3);
+
+  # Perform needed patches
+  chdir("$gdir/src");
+#  &patch_gcc_cyclades_1();
+
+  # Make the target directory
+  $idir = "$hd/gcc-8";
+  $sigfile = "$idir/.ccbot";
+  if ((-d $idir) && (-f $sigfile)) {
+    # All set up
+  } elsif (-d $idir) {
+    die "bld.gcc_8: $idir exists but has no sigfile\n";
+  } else {
+    &sys_error_check("mkdir $idir");
+    &sys_error_check("touch $sigfile");
+  }
+
+  # Create the build directory
+  $bdir = "$gdir/build";
+  if (-d $bdir) {
+    # Okay
+  } else {
+    &sys_error_check("mkdir $bdir");
+  }
+
+  # Go into build directory and ensure it is clean
+  chdir($bdir);
+  &clean_gcc_build_dir();
+
+  # Try to run configure
+  # %%% Here we need to setenv CC and CXX based on what is found by
+  #     cmd_ccsystem
+  chdir($bdir);
+  &gcc_config_v8();
+
+  # Time to build
+  chdir($bdir);
+  &sys_error_check("make MAKEINFO=true", 1977);
+  &sys_error_check("./gcc/xgcc --version");
+
+  # "Install"
+  chdir($bdir);
+  &sys_error_check("make install");
+  &sys_error_check("$idir/bin/gcc --version");
+
+  print "bld.gcc_8: okay so far...\n";
+} # End of inst.gcc_8
+
+sub build_gcc
+{
+  my($version) = @_;
+
+  if ("$version." =~ m/^(4\.[2-9])\./) {
+    $version = $1;
+  } else {
+    $version = int($version);
+  }
+
+  if (($version < 4.6) || ($version > 8)) {
+    die "build_gcc: I don't know how to build GCC $version\n";
+  }
+
+  if ($version == 8) {
+    &bld_gcc_8(); return;
+  }
+
+  die "build_gcc: Need rules to build GCC $version\n";
+} # End of build.gcc
+
+sub cmd_build
+{
+  if ($g_build_what =~ m/gcc/i) {
+    &build_gcc($g_build_version);
+  } else {
+    die "cmd.build: Unknown object '$g_build_what'\n";
+  }
+} # End of cmd.build
 
 sub cmd_help
 {
@@ -581,7 +856,7 @@ sub cmd_help
   }
   print $help;
   exit(0);
-}
+} # End of cmd.help
 
 while ($arg = shift) {
   if ($arg eq '') {
@@ -609,6 +884,10 @@ while ($arg = shift) {
   } elsif ($arg eq '-distro') {
     # Get distro summary string, like #bdistro#
     &self_bdistro(); exit(0);
+  } elsif ($arg eq '-build') {
+    $g_build_what = shift;
+    $g_build_version = shift;
+    &cmd_build(); exit(0);
   } elsif ($arg eq '-self') {
     # Show pathname of this script
     print "$g_self\n"; exit(0);

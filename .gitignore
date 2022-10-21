@@ -36,8 +36,8 @@ Makefile.in
 **/configure
 **/configure.ac
 **/configure~
-**/*.m4
-**/*m4
+# **/*.m4
+**/m4/
 **/autom4te.cache
 **/config.h.in
 **/config.h.in~
@@ -65,9 +65,14 @@ panda_release/
 # this long list of specific things
 **/Exercise*/panda-temp/
 **/Exercise*/HLS_output/
+**/Exercise1/icrc1.v
+**/Exercise1/memory_allocation_0.xml
+**/Exercise1/synthesize_Synthesis_icrc1.sh
 **/Exercise3/bambu_results_*.xml
 **/Exercise3/memory_allocation_*.xml
 **/Exercise3/main_kernel.v
 **/Exercise3/results.txt
 **/Exercise3/simulate_main_kernel.sh
 **/Exercise3/synthesize_Synthesis_main_kernel.sh
+
+
