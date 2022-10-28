@@ -349,6 +349,7 @@ The installed binaries, libraries, headers, etc are all in ~/gcc-9
     --without-cuda-driver \
     --without-included-gettext
   time (make MAKEINFO=true && echo make-build success)
+  ./gcc/xgcc --version
   time (make install && echo make-inst success)
   $HOME/gcc-9/bin/gcc --version
 
