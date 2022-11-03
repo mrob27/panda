@@ -1,32 +1,36 @@
 default: all
 
 all:
-	 @if test -e src/logic_synthesis/Makefile.am; then \
-	       make --directory=src/logic_synthesis/2lev -f Makefile.init; \
-	       if test ! -d src/logic_synthesis/2lev/m4; then \
-	          mkdir src/logic_synthesis/2lev/m4; \
-	       fi \
-	 fi
-	 @if ! autoreconf -m -iv --warning=none > autoreconf_log 2>&1; then \
-	     if `grep -q"required directory" autoreconf_log`; then \
-	        grep -h "required directory" autoreconf_log | awk -F'directory' {'print $$2'} | awk {'print $$1'} | sort | uniq | while read -r line; do mkdir -v $$line; done; \
-	        if ! autoreconf -m -iv --warning=none; then \
-	           cat autoreconf_log; \
-	           exit 1;\
-	        fi\
-	     else \
-	       cat autoreconf_log; \
-	       exit 1;\
-	     fi \
-	 fi
-	 @if test -e git_polimi_placeholder; then \
-	     if ! test -e ext/flopoco/configure.ac; then \
-	       git submodule update --init --recursive; \
-	     fi; \
-	 fi
+	if test -e src/logic_synthesis/Makefile.am; then \
+	  make --directory=src/logic_synthesis/2lev -f Makefile.init; \
+	  if test ! -d src/logic_synthesis/2lev/m4; then \
+	     mkdir src/logic_synthesis/2lev/m4; \
+	  fi \
+	fi
+	if ! autoreconf -m -iv --warning=none > autoreconf_log 2>&1; then \
+	  if `grep -q"required directory" autoreconf_log`; then \
+	    grep -h "required directory" autoreconf_log | \
+	      awk -F'directory' {'print $$2'} | awk {'print $$1'} | \
+          sort | uniq | while read -r line; do mkdir -v $$line; done; \
+	    if ! autoreconf -m -iv --warning=none; then \
+	      cat autoreconf_log; \
+	      exit 1;\
+	    fi\
+	  else \
+	    cat autoreconf_log; \
+	    exit 1;\
+	  fi \
+	fi
+	if test -e git_polimi_placeholder; then \
+	  if ! test -e ext/flopoco/configure.ac; then \
+	    git submodule update --init --recursive; \
+	  fi; \
+	fi
 
 clean:
-	rm -rf config.* configure.scan depcomp install-sh ltmain.sh missing mkinstalldirs autom4te.cache auxdir autoscan.log aclocal.m4 configure ylwrap
+	rm -rf config.* configure.scan depcomp install-sh ltmain.sh \
+	  missing mkinstalldirs autom4te.cache auxdir autoscan.log \
+	  aclocal.m4 configure ylwrap
 
 cleanIN:
 	for a in `find . -iname Makefile.in `; do rm -f "$$a"; done
@@ -48,26 +52,55 @@ dist :
 	make -f etc/scripts/Makeall dist CONFIGURE_OPTIONS="$(CONFIGURE_OPTIONS)"
 
 distclean :
-	@for dir in `find -name autom4te.cache`; do rm "$$dir"; done;
-	@for file in `find src -name Makefile.in`; do rm  "$$file"; done;
-	@for file in `find -name test-driver`; do rm  "$$file"; done;
-	@for file in `find ext -name aclocal.m4`; do rm  "$$file"; done;
-	@rm -rf aclocal.m4 ar-lib autoreconf_log compile {,l}config.* configure depcomp install-sh ltmain.sh missing ylwrap
-	@rm -rf etc/aclocal.m4 etc/autoreconf_log etc/config.h.in etc/config.h.in~ etc/configure
-	@rm -rf etc/macros/libtool.m4 etc/macros/lt~obsolete.m4 etc/macros/ltoptions.m4 etc/macros/ltsugar.m4 etc/macros/ltversion.m4
-	@rm -rf etc/scripts/.test_panda.py.swp
-	@rm -rf ext/autoreconf_log ext/config.h.in ext/config.h.in~ ext/configure
-	@rm -rf ext/abseil-cpp/configure
-	@rm -rf ext/Coin-Cbc/missing
-	@rm -rf ext/cudd/config.h.in ext/cudd/config.h.in~ ext/cudd/configure
-	@rm -rf ext/flopoco/config.h.in ext/flopoco/config.h.in~ ext/flopoco/configure ext/flopoco/configure.ac ext/flopoco/m4 ext/flopoco/Makefile.am ext/flopoco/src/FPExpressions/ExpressionParser.h ext/flopoco/src/FPExpressions/FlopocoScanner.h ext/flopoco/src/Makefile.am
-	@rm -rf ext/liberty_parser/configure
-	@rm -rf ext/libfplll-4.0.3/config.h.in ext/libfplll-4.0.3/config.h.in~ ext/libfplll-4.0.3/configure
-	@rm -rf ext/metslib-0.5.3/config/depcomp ext/metslib-0.5.3/config/missing ext/metslib-0.5.3/config.h.in ext/metslib-0.5.3/configure
-	@rm -rf ext/SimIt-PoliMi/config.h.in ext/SimIt-PoliMi/configure
-	@rm -rf ext/sollya/config.h.in ext/sollya/config.h.in~ ext/sollya/configure ext/sollya/m4/l*
-	@rm -rf ext/trng-4.17/compile ext/trng-4.17/missing ext/trng-4.17/configure ext/trng-4.17/depcomp ext/trng-4.17/m4/libtool.m4 ext/trng-4.17/m4/lt~obsolete.m4 ext/trng-4.17/m4/ltoptions.m4 ext/trng-4.17/m4/ltsugar.m4 ext/trng-4.17/m4/ltversion.m4 ext/trng-4.17/src/config.hpp.in ext/trng-4.17/src/config.hpp.in~ ext/trng-4.17/trng/config.hpp.in ext/trng-4.17/trng/config.hpp.in~
-	@rm -rf src/logic_synthesis/2lev/aclocal.m4 src/logic_synthesis/2lev/install-sh src/logic_synthesis/2lev/ltmain.sh src/logic_synthesis/2lev/m4 src/logic_synthesis/2lev/missing src/logic_synthesis/2lev/compile src/logic_synthesis/2lev/config.guess src/logic_synthesis/2lev/config.h.in src/logic_synthesis/2lev/config.h.in~ src/logic_synthesis/2lev/config.sub src/logic_synthesis/2lev/configure src/logic_synthesis/2lev/cudd src/logic_synthesis/2lev/depcomp
+	for dir in `find -name autom4te.cache`; do rm "$$dir"; done;
+	for file in `find src -name Makefile.in`; do rm  "$$file"; done;
+	for file in `find -name test-driver`; do rm  "$$file"; done;
+	for file in `find ext -name aclocal.m4`; do rm  "$$file"; done;
+	rm -rf aclocal.m4 ar-lib autoreconf_log compile {,l}config.* \
+	  configure depcomp install-sh ltmain.sh missing ylwrap
+	rm -rf etc/aclocal.m4 etc/autoreconf_log etc/config.h.in \
+	  etc/config.h.in~ etc/configure
+	rm -rf etc/macros/libtool.m4 etc/macros/lt~obsolete.m4 \
+	  etc/macros/ltoptions.m4 etc/macros/ltsugar.m4 etc/macros/ltversion.m4
+	rm -rf etc/scripts/.test_panda.py.swp
+	rm -rf ext/autoreconf_log ext/config.h.in ext/config.h.in~ ext/configure
+	rm -rf ext/abseil-cpp/configure
+	rm -rf ext/Coin-Cbc/missing
+	rm -rf ext/cudd/config.h.in ext/cudd/config.h.in~ ext/cudd/configure
+	rm -rf ext/flopoco/config.h.in ext/flopoco/config.h.in~ \
+	  ext/flopoco/configure ext/flopoco/configure.ac \
+	  ext/flopoco/m4 ext/flopoco/Makefile.am \
+	  ext/flopoco/src/FPExpressions/ExpressionParser.h \
+	  ext/flopoco/src/FPExpressions/FlopocoScanner.h \
+	  ext/flopoco/src/Makefile.am
+	rm -rf ext/liberty_parser/configure
+	rm -rf ext/libfplll-4.0.3/config.h.in \
+	  ext/libfplll-4.0.3/config.h.in~ \
+	  ext/libfplll-4.0.3/configure
+	rm -rf ext/metslib-0.5.3/config/depcomp \
+	  ext/metslib-0.5.3/config/missing ext/metslib-0.5.3/config.h.in \
+	  ext/metslib-0.5.3/configure
+	rm -rf ext/SimIt-PoliMi/config.h.in ext/SimIt-PoliMi/configure
+	rm -rf ext/sollya/config.h.in ext/sollya/config.h.in~ \
+	  ext/sollya/configure ext/sollya/m4/l*
+	rm -rf ext/trng-4.17/compile ext/trng-4.17/missing \
+	  ext/trng-4.17/configure ext/trng-4.17/depcomp \
+	  ext/trng-4.17/m4/libtool.m4 ext/trng-4.17/m4/lt~obsolete.m4 \
+	  ext/trng-4.17/m4/ltoptions.m4 ext/trng-4.17/m4/ltsugar.m4 \
+	  ext/trng-4.17/m4/ltversion.m4 ext/trng-4.17/src/config.hpp.in \
+	  ext/trng-4.17/src/config.hpp.in~ ext/trng-4.17/trng/config.hpp.in \
+	  ext/trng-4.17/trng/config.hpp.in~
+	rm -rf src/logic_synthesis/2lev/aclocal.m4 \
+	  src/logic_synthesis/2lev/install-sh \
+	  src/logic_synthesis/2lev/ltmain.sh src/logic_synthesis/2lev/m4 \
+	  src/logic_synthesis/2lev/missing \
+	  src/logic_synthesis/2lev/compile \
+	  src/logic_synthesis/2lev/config.guess \
+	  src/logic_synthesis/2lev/config.h.in \
+	  src/logic_synthesis/2lev/config.h.in~ \
+	  src/logic_synthesis/2lev/config.sub \
+	  src/logic_synthesis/2lev/configure \
+	  src/logic_synthesis/2lev/cudd src/logic_synthesis/2lev/depcomp
 
 install : all
 	rm -rf obj; \
@@ -76,9 +109,12 @@ install : all
 	if test `cat /etc/debian_chroot` = centos_6_64; then\
 	  export CXX=/opt/centos/devtoolset-1.1/root/usr/bin/g++;\
 	  export CC=/opt/centos/devtoolset-1.1/root/usr/bin/gcc;\
-	  ../configure $(CONFIGURE_OPTIONS) --with-boost=/opt/boost/1.48.0 --with-gcc47=/opt/centos/devtoolset-1.1/root/usr/bin/gcc --prefix=$(pwd)/panda_installation; \
+	  ../configure $(CONFIGURE_OPTIONS) --with-boost=/opt/boost/1.48.0 \
+	    --with-gcc47=/opt/centos/devtoolset-1.1/root/usr/bin/gcc \
+	    --prefix=$(pwd)/panda_installation; \
 	else\
-	  ../configure $(CONFIGURE_OPTIONS) --prefix=$(pwd)/panda_installations; \
+	  ../configure $(CONFIGURE_OPTIONS) \
+	    --prefix=$(pwd)/panda_installations; \
 	fi;\
 	if [ $$? != 0 ]; then\
 	  false; \
