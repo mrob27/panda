@@ -353,6 +353,13 @@ build/config_headers/config_I386_GCC8_SSA_PLUGIN.hpp
 build/config_headers/config_I386_GCC8_SSA_PLUGINCPP.hpp
 build/config_headers/config_I386_GCC8_TOPFNAME_PLUGIN.hpp
 build/config_headers/config_I386_GCC8_VERSION.hpp
+build/config_headers/config_I386_GCC9_EMPTY_PLUGIN.hpp
+build/config_headers/config_I386_GCC9_EXE.hpp
+build/config_headers/config_I386_GCC9_PLUGIN_COMPILER.hpp
+build/config_headers/config_I386_GCC9_SSA_PLUGIN.hpp
+build/config_headers/config_I386_GCC9_SSA_PLUGINCPP.hpp
+build/config_headers/config_I386_GCC9_TOPFNAME_PLUGIN.hpp
+build/config_headers/config_I386_GCC9_VERSION.hpp
 build/config_headers/config_I386_GPP45_EXE.hpp
 build/config_headers/config_I386_GPP46_EXE.hpp
 build/config_headers/config_I386_GPP47_EXE.hpp
