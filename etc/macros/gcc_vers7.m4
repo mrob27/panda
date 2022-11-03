@@ -8,6 +8,8 @@ AC_DEFUN([AC_CHECK_GCC7_I386_VERSION],[
        ac_gcc7="$withval"
     ])
 
+   echo xi386_g ... 7
+
 dnl switch to c
 AC_LANG_PUSH([C])
 
@@ -18,19 +20,21 @@ else
 fi
 
 echo "looking for gcc 7..."
+echo xi386_gcc7 checking "$GCC_TO_BE_CHECKED"
 for compiler in $GCC_TO_BE_CHECKED; do
    if test -f $compiler; then
       echo "checking $compiler..."
       dnl check for gcc
       I386_GCC7_VERSION=`$compiler -dumpspecs | grep \*version -A1 | tail -1`
+   echo xi386_gcc7 version is "$I386_GCC7_VERSION"
       I386_GCC7_FULL_VERSION=`$compiler --version`
       AS_VERSION_COMPARE($1, [7.0.0], MIN_GCC7=[7.0.0], MIN_GCC7=$1, MIN_GCC7=$1)
       AS_VERSION_COMPARE([8.0.0], $2, MAX_GCC7=[8.0.0], MAX_GCC7=$2, MAX_GCC7=$2)
-      AS_VERSION_COMPARE($I386_GCC7_VERSION, $MIN_GCC7, echo "checking $compiler >= $MIN_GCC7... no"; min=no, echo "checking $compiler >= $MIN_GCC7... yes"; min=yes, echo "checking $compiler >= $MIN_GCC7... yes"; min=yes)
+      AS_VERSION_COMPARE($I386_GCC7_VERSION, $MIN_GCC7, echo "xi386_g1 checking $compiler >= $MIN_GCC7... no"; min=no, echo "xi386_g2 checking $compiler >= $MIN_GCC7... yes"; min=yes, echo "xi386_g3 checking $compiler >= $MIN_GCC7... yes"; min=yes)
       if test "$min" = "no" ; then
          continue;
       fi
-      AS_VERSION_COMPARE($I386_GCC7_VERSION, $MAX_GCC7, echo "checking $compiler < $MAX_GCC7... yes"; max=yes, echo "checking $compiler < $MAX_GCC7... no"; max=no, echo "checking $compiler < $MAX_GCC7... no"; max=no)
+      AS_VERSION_COMPARE($I386_GCC7_VERSION, $MAX_GCC7, echo "xi386_g4 checking $compiler < $MAX_GCC7... yes"; max=yes, echo "xi386_g5 checking $compiler < $MAX_GCC7... no"; max=no, echo "xi386_g6 checking $compiler < $MAX_GCC7... no"; max=no)
       if test "$max" = "no" ; then
          continue;
       fi

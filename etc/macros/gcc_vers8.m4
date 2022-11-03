@@ -8,6 +8,8 @@ AC_DEFUN([AC_CHECK_GCC8_I386_VERSION],[
        ac_gcc8="$withval"
     ])
 
+   echo xi386_g ... 8
+
 dnl switch to c
 AC_LANG_PUSH([C])
 
@@ -18,19 +20,21 @@ else
 fi
 
 echo "looking for gcc 8..."
+echo xi386_gcc8 checking "$GCC_TO_BE_CHECKED"
 for compiler in $GCC_TO_BE_CHECKED; do
    if test -f $compiler; then
       echo "checking $compiler..."
       dnl check for gcc
       I386_GCC8_VERSION=`$compiler -dumpspecs | grep \*version -A1 | tail -1`
+   echo xi386_gcc8 version is "$I386_GCC8_VERSION"
       I386_GCC8_FULL_VERSION=`$compiler --version`
       AS_VERSION_COMPARE($1, [8.0.0], MIN_GCC8=[8.0.0], MIN_GCC8=$1, MIN_GCC8=$1)
       AS_VERSION_COMPARE([9.0.0], $2, MAX_GCC8=[9.0.0], MAX_GCC8=$2, MAX_GCC8=$2)
-      AS_VERSION_COMPARE($I386_GCC8_VERSION, $MIN_GCC8, echo "checking $compiler >= $MIN_GCC8... no"; min=no, echo "checking $compiler >= $MIN_GCC8... yes"; min=yes, echo "checking $compiler >= $MIN_GCC8... yes"; min=yes)
+      AS_VERSION_COMPARE($I386_GCC8_VERSION, $MIN_GCC8, echo "xi386_g1 checking $compiler >= $MIN_GCC8... no"; min=no, echo "xi386_g2 checking $compiler >= $MIN_GCC8... yes"; min=yes, echo "xi386_g3 checking $compiler >= $MIN_GCC8... yes"; min=yes)
       if test "$min" = "no" ; then
          continue;
       fi
-      AS_VERSION_COMPARE($I386_GCC8_VERSION, $MAX_GCC8, echo "checking $compiler < $MAX_GCC8... yes"; max=yes, echo "checking $compiler < $MAX_GCC8... no"; max=no, echo "checking $compiler < $MAX_GCC8... no"; max=no)
+      AS_VERSION_COMPARE($I386_GCC8_VERSION, $MAX_GCC8, echo "xi386_g4 checking $compiler < $MAX_GCC8... yes"; max=yes, echo "xi386_g5 checking $compiler < $MAX_GCC8... no"; max=no, echo "xi386_g6 checking $compiler < $MAX_GCC8... no"; max=no)
       if test "$max" = "no" ; then
          continue;
       fi

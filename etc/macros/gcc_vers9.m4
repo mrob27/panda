@@ -8,6 +8,8 @@ AC_DEFUN([AC_CHECK_GCC9_I386_VERSION],[
        ac_gcc9="$withval"
     ])
 
+   echo xi386_g ... 9
+
 dnl switch to c
 AC_LANG_PUSH([C])
 
@@ -18,19 +20,21 @@ else
 fi
 
 echo "looking for gcc 9..."
+echo xi386_gcc9 checking "$GCC_TO_BE_CHECKED"
 for compiler in $GCC_TO_BE_CHECKED; do
    if test -f $compiler; then
       echo "checking $compiler..."
       dnl check for gcc
       I386_GCC9_VERSION=`$compiler -dumpspecs | grep \*version -A1 | tail -1`
+   echo xi386_gcc9 version is "$I386_GCC9_VERSION" s1 "$1" s2 "$2"
       I386_GCC9_FULL_VERSION=`$compiler --version`
       AS_VERSION_COMPARE($1, [9.0.0], MIN_GCC9=[9.0.0], MIN_GCC9=$1, MIN_GCC9=$1)
       AS_VERSION_COMPARE([10.0.0], $2, MAX_GCC9=[10.0.0], MAX_GCC9=$2, MAX_GCC9=$2)
-      AS_VERSION_COMPARE($I386_GCC9_VERSION, $MIN_GCC9, echo "checking $compiler >= $MIN_GCC9... no"; min=no, echo "checking $compiler >= $MIN_GCC9... yes"; min=yes, echo "checking $compiler >= $MIN_GCC9... yes"; min=yes)
+      AS_VERSION_COMPARE($I386_GCC9_VERSION, $MIN_GCC9, echo "xi386_g1 checking $compiler >= $MIN_GCC9... no"; min=no, echo "xi386_g2 checking $compiler >= $MIN_GCC9... yes"; min=yes, echo "xi386_g3 checking $compiler >= $MIN_GCC9... yes"; min=yes)
       if test "$min" = "no" ; then
          continue;
       fi
-      AS_VERSION_COMPARE($I386_GCC9_VERSION, $MAX_GCC9, echo "checking $compiler < $MAX_GCC9... yes"; max=yes, echo "checking $compiler < $MAX_GCC9... no"; max=no, echo "checking $compiler < $MAX_GCC9... no"; max=no)
+      AS_VERSION_COMPARE($I386_GCC9_VERSION, $MAX_GCC9, echo "xi386_g4 checking $compiler < $MAX_GCC9... yes"; max=yes, echo "xi386_g5 checking $compiler < $MAX_GCC9... no"; max=no, echo "xi386_g6 checking $compiler < $MAX_GCC9... no"; max=no)
       if test "$max" = "no" ; then
          continue;
       fi
