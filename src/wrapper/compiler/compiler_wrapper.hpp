@@ -69,6 +69,7 @@
 #include "config_HAVE_I386_GCC6_COMPILER.hpp"
 #include "config_HAVE_I386_GCC7_COMPILER.hpp"
 #include "config_HAVE_I386_GCC8_COMPILER.hpp"
+#include "config_HAVE_I386_GCC9_COMPILER.hpp"
 #include "config_HAVE_SPARC_COMPILER.hpp"
 #include "config_HAVE_TUCANO_BUILT.hpp"
 #include "config_HAVE_ZEBU_BUILT.hpp"
@@ -150,42 +151,45 @@ enum class CompilerWrapper_CompilerTarget
 #if HAVE_I386_GCC8_COMPILER
    CT_I386_GCC8 = (1<<8),
 #endif
+#if HAVE_I386_GCC9_COMPILER
+   CT_I386_GCC9 = (1<<9),
+#endif
 #if HAVE_I386_CLANG4_COMPILER
-   CT_I386_CLANG4 = (1<<9),
+   CT_I386_CLANG4 = (1<<10),
 #endif
 #if HAVE_I386_CLANG5_COMPILER
-   CT_I386_CLANG5 = (1<<10),
+   CT_I386_CLANG5 = (1<<11),
 #endif
 #if HAVE_I386_CLANG6_COMPILER
-   CT_I386_CLANG6 = (1<<11),
+   CT_I386_CLANG6 = (1<<12),
 #endif
 #if HAVE_I386_CLANG7_COMPILER
-   CT_I386_CLANG7 = (1<<12),
+   CT_I386_CLANG7 = (1<<13),
 #endif
 #if HAVE_I386_CLANG8_COMPILER
-   CT_I386_CLANG8 = (1<<13),
+   CT_I386_CLANG8 = (1<<14),
 #endif
 #if HAVE_I386_CLANG9_COMPILER
-   CT_I386_CLANG9 = (1<<14),
+   CT_I386_CLANG9 = (1<<15),
 #endif
 #if HAVE_I386_CLANG10_COMPILER
-   CT_I386_CLANG10 = (1<<15),
+   CT_I386_CLANG10 = (1<<16),
 #endif
 #if HAVE_I386_CLANG11_COMPILER
-   CT_I386_CLANG11 = (1<<16),
+   CT_I386_CLANG11 = (1<<17),
 #endif
 #if HAVE_I386_CLANG12_COMPILER
-   CT_I386_CLANG12 = (1<<17),
+   CT_I386_CLANG12 = (1<<18),
 #endif
 #if HAVE_I386_CLANGVVD_COMPILER
-   CT_I386_CLANGVVD = (1<<18),
+   CT_I386_CLANGVVD = (1<<19),
 #endif
 #if HAVE_ARM_COMPILER
-   CT_ARM_GCC = (1<<19),
+   CT_ARM_GCC = (1<<20),
 #endif
 #if HAVE_SPARC_COMPILER
-   CT_SPARC_GCC = (1<<20),
-   CT_SPARC_ELF_GCC = (1<<21)
+   CT_SPARC_GCC = (1<<21),
+   CT_SPARC_ELF_GCC = (1<<22)
 #endif
 };
 

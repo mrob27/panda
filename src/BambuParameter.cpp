@@ -56,6 +56,7 @@
 #include "config_HAVE_I386_GCC6_COMPILER.hpp"
 #include "config_HAVE_I386_GCC7_COMPILER.hpp"
 #include "config_HAVE_I386_GCC8_COMPILER.hpp"
+#include "config_HAVE_I386_GCC9_COMPILER.hpp"
 #include "config_HAVE_ILP_BUILT.hpp"
 #include "config_HAVE_LIBRARY_CHARACTERIZATION_BUILT.hpp"
 #include "config_HAVE_LP_SOLVE.hpp"
@@ -3658,6 +3659,10 @@ void BambuParameter::CheckParameters()
                || getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                       CompilerWrapper_CompilerTarget::CT_I386_GCC8
 #endif
+#if HAVE_I386_GCC9_COMPILER
+               || getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                      CompilerWrapper_CompilerTarget::CT_I386_GCC9
+#endif
             )
             {
                tuning_optimizations +=
@@ -3671,6 +3676,10 @@ void BambuParameter::CheckParameters()
 #if HAVE_I386_GCC8_COMPILER
                || getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                       CompilerWrapper_CompilerTarget::CT_I386_GCC8
+#endif
+#if HAVE_I386_GCC9_COMPILER
+               || getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                      CompilerWrapper_CompilerTarget::CT_I386_GCC9
 #endif
             )
             {

@@ -46,6 +46,7 @@
 #include "config_HAVE_I386_GCC6_COMPILER.hpp"
 #include "config_HAVE_I386_GCC7_COMPILER.hpp"
 #include "config_HAVE_I386_GCC8_COMPILER.hpp"
+#include "config_HAVE_I386_GCC9_COMPILER.hpp"
 
 // include class header
 #include "CTestbenchExecution.hpp"
@@ -213,6 +214,10 @@ DesignFlowStep_Status CTestbenchExecution::Exec()
          || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                 CompilerWrapper_CompilerTarget::CT_I386_GCC8
 #endif
+#if HAVE_I386_GCC9_COMPILER
+         || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                CompilerWrapper_CompilerTarget::CT_I386_GCC9
+#endif
       )
       {
          compiler_flags += " -g -fsanitize=address -fno-omit-frame-pointer -fno-common ";
@@ -242,6 +247,10 @@ DesignFlowStep_Status CTestbenchExecution::Exec()
          || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                 CompilerWrapper_CompilerTarget::CT_I386_GCC8
 #endif
+#if HAVE_I386_GCC9_COMPILER
+         || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                CompilerWrapper_CompilerTarget::CT_I386_GCC9
+#endif
       )
       {
          compiler_flags += " -static-libasan ";
@@ -263,6 +272,10 @@ DesignFlowStep_Status CTestbenchExecution::Exec()
          || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                 CompilerWrapper_CompilerTarget::CT_I386_GCC8
 #endif
+#if HAVE_I386_GCC9_COMPILER
+         || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                CompilerWrapper_CompilerTarget::CT_I386_GCC9
+#endif
       )
       {
          compiler_flags += " -fsanitize=undefined -fsanitize-recover=undefined ";
@@ -283,6 +296,10 @@ DesignFlowStep_Status CTestbenchExecution::Exec()
 #if HAVE_I386_GCC8_COMPILER
          || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                 CompilerWrapper_CompilerTarget::CT_I386_GCC8
+#endif
+#if HAVE_I386_GCC9_COMPILER
+         || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                CompilerWrapper_CompilerTarget::CT_I386_GCC9
 #endif
       )
       {
@@ -377,6 +394,10 @@ DesignFlowStep_Status CTestbenchExecution::Exec()
 #if HAVE_I386_GCC8_COMPILER
          || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                 CompilerWrapper_CompilerTarget::CT_I386_GCC8
+#endif
+#if HAVE_I386_GCC9_COMPILER
+         || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                CompilerWrapper_CompilerTarget::CT_I386_GCC9
 #endif
       )
       {

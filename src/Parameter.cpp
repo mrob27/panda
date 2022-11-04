@@ -66,6 +66,7 @@
 #include "config_HAVE_I386_GCC6_COMPILER.hpp"
 #include "config_HAVE_I386_GCC7_COMPILER.hpp"
 #include "config_HAVE_I386_GCC8_COMPILER.hpp"
+#include "config_HAVE_I386_GCC9_COMPILER.hpp"
 #include "config_HAVE_IPXACT_BUILT.hpp"
 #include "config_HAVE_PERFORMANCE_METRICS_XML.hpp"
 #include "config_HAVE_REGRESSORS_BUILT.hpp"
@@ -931,6 +932,13 @@ bool Parameter::ManageGccOptions(int next_option, char* optarg_param)
             break;
          }
 #endif
+#if HAVE_I386_GCC9_COMPILER
+         if(std::string(optarg_param) == "I386_GCC9")
+         {
+            setOption(OPT_default_compiler, static_cast<int>(CompilerWrapper_CompilerTarget::CT_I386_GCC9));
+            break;
+         }
+#endif
 #if HAVE_I386_CLANG4_COMPILER
          if(std::string(optarg_param) == "I386_CLANG4")
          {
@@ -1506,6 +1514,9 @@ void Parameter::PrintGccOptionsUsage(std::ostream& os) const
 #endif
 #if HAVE_I386_GCC8_COMPILER
       << "            I386_GCC8\n"
+#endif
+#if HAVE_I386_GCC9_COMPILER
+      << "            I386_GCC9\n"
 #endif
 #if HAVE_I386_CLANG4_COMPILER
       << "            I386_CLANG4\n"

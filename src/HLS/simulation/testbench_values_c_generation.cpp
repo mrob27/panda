@@ -260,6 +260,10 @@ DesignFlowStep_Status TestbenchValuesCGeneration::Exec()
          || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                 CompilerWrapper_CompilerTarget::CT_I386_GCC8
 #endif
+#if HAVE_I386_GCC9_COMPILER
+         || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                CompilerWrapper_CompilerTarget::CT_I386_GCC9
+#endif
       )
       {
          compiler_flags += " -static-libasan ";
@@ -297,6 +301,10 @@ DesignFlowStep_Status TestbenchValuesCGeneration::Exec()
 #if HAVE_I386_GCC8_COMPILER
          || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
                 CompilerWrapper_CompilerTarget::CT_I386_GCC8
+#endif
+#if HAVE_I386_GCC9_COMPILER
+         || parameters->getOption<CompilerWrapper_CompilerTarget>(OPT_default_compiler) ==
+                CompilerWrapper_CompilerTarget::CT_I386_GCC9
 #endif
       )
       {
