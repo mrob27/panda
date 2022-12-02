@@ -2780,7 +2780,7 @@ CompilerWrapper::Compiler CompilerWrapper::GetCompiler() const
          compiler.extra_options += " " + Param->getOption<std::string>(OPT_gcc_m32_mx32);
       }
       compiler.empty_plugin_obj = gcc_plugin_dir + I386_GCC9_EMPTY_PLUGIN + plugin_ext;
-      compiler.empty_plugin_name = I386_GCC0_EMPTY_PLUGIN;
+      compiler.empty_plugin_name = I386_GCC9_EMPTY_PLUGIN;
       compiler.ssa_plugin_obj =
           gcc_plugin_dir + (flag_cpp ? I386_GCC9_SSA_PLUGINCPP : I386_GCC9_SSA_PLUGIN) + plugin_ext;
       compiler.ssa_plugin_name = (flag_cpp ? I386_GCC9_SSA_PLUGINCPP : I386_GCC9_SSA_PLUGIN);

@@ -200,6 +200,9 @@ dg_descriptor_tree_marked_p(const void *p)
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wundef"
 #endif
+#if (__GNUC__ == 9)
+#include "gtype_roots_gcc9.h"
+#endif
 #if (__GNUC__ == 8)
 #include "gtype_roots_gcc8.h"
 #endif
@@ -392,11 +395,12 @@ DumpGimpleTreeWalker(void *arg ATTRIBUTE_UNUSED)
 
 static struct ggc_root_tab DumpGimpleTreeRoot = {NULL , 1, 1, DumpGimpleTreeWalker, NULL };
 
-void
-DumpGimpleInit(char *_outdir_name)
+void DumpGimpleInit(char *_outdir_name)
 {
     /* Register our GC root-walking callback: */
-#if (__GNUC__ == 8)
+#if (__GNUC__ == 9)
+    ggc_register_root_tab(gt_ggc_r_gtype_roots_gcc9_h);
+#elif (__GNUC__ == 8)
     ggc_register_root_tab(gt_ggc_r_gtype_roots_gcc8_h);
 #elif (__GNUC__ == 7)
     ggc_register_root_tab(gt_ggc_r_gtype_roots_gcc7_h);
