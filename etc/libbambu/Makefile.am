@@ -79,9 +79,17 @@ endif
 if BUILD_I386_GCC8
 pkglib_LIBRARIES += libbambu_gcc8.a
 libbambu_gcc8_a_SOURCES = $(common_libbambu_src)
-libbambu_gcc8_a_CFLAGS =$(common_cflags) -fno-tree-loop-distribute-patterns --compiler=I386_GCC8 
-libbambu_gcc8_a_AR =$(top_builddir)/src/tree-panda-gcc $(common_treegccflags) --compiler=I386_GCC8 -C
+libbambu_gcc8_a_CFLAGS = $(common_cflags) -fno-tree-loop-distribute-patterns --compiler=I386_GCC8 
+libbambu_gcc8_a_AR = $(top_builddir)/src/tree-panda-gcc $(common_treegccflags) --compiler=I386_GCC8 -C
 endif
+
+if BUILD_I386_GCC9
+pkglib_LIBRARIES += libbambu_gcc9.a
+libbambu_gcc9_a_SOURCES = $(common_libbambu_src)
+libbambu_gcc9_a_CFLAGS = $(common_cflags) -fno-tree-loop-distribute-patterns --compiler=I386_GCC9 
+libbambu_gcc9_a_AR = $(top_builddir)/src/tree-panda-gcc $(common_treegccflags) --compiler=I386_GCC9 -C
+endif
+
 
 if BUILD_I386_CLANG4
 pkglib_LIBRARIES += libbambu_clang4.a

@@ -2511,6 +2511,11 @@ dequeue_and_serialize ()
       if (SSA_NAME_IS_DEFAULT_DEF(t))
          serialize_string("default");
 
+#if (__GNUC__ > 8)
+# define value_range_type value_range_kind
+# define is_builtin_fn fndecl_built_in_p
+#endif
+
 #if (__GNUC__ > 4)
 if (!POINTER_TYPE_P (TREE_TYPE (t))
       && SSA_NAME_RANGE_INFO (t))

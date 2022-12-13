@@ -85,6 +85,15 @@ libsoftfloat_subnormals_gcc8_a_SOURCES = softfloat.c
 libsoftfloat_subnormals_gcc8_a_CFLAGS = -O3 -fno-tree-loop-distribute-patterns --compiler=I386_GCC8 -finline-limit=10000 $(common_cflags_subnormals) -I$(BOOST_DIR)
 endif
 
+if BUILD_I386_GCC9
+pkglib_LIBRARIES += libsoftfloat_gcc9.a libsoftfloat_subnormals_gcc9.a
+libsoftfloat_gcc9_a_SOURCES = softfloat.c
+libsoftfloat_gcc9_a_CFLAGS = -O3 -fno-tree-loop-distribute-patterns --compiler=I386_GCC9 -finline-limit=10000 $(common_cflags) -I$(BOOST_DIR)
+libsoftfloat_subnormals_gcc9_a_SOURCES = softfloat.c
+libsoftfloat_subnormals_gcc9_a_CFLAGS = -O3 -fno-tree-loop-distribute-patterns --compiler=I386_GCC9 -finline-limit=10000 $(common_cflags_subnormals) -I$(BOOST_DIR)
+endif
+
+
 if BUILD_I386_CLANG4
 pkglib_LIBRARIES += libsoftfloat_clang4.a libsoftfloat_subnormals_clang4.a
 libsoftfloat_clang4_a_SOURCES = softfloat.c

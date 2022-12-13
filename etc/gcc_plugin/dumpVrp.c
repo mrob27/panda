@@ -19835,6 +19835,11 @@ varying:
 }
 
 #else
+
+#if (__GNUC__ > 8)
+# define value_range_type value_range_kind
+#endif
+
 /* Return the maximum value for TYPE.  */
 
 static inline tree

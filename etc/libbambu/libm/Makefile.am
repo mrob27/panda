@@ -204,6 +204,25 @@ libm_gcc8_subnormals_std_a_AR = $(top_builddir)/src/tree-panda-gcc --compiler=I3
 endif
 
 
+if BUILD_I386_GCC9
+pkglib_LIBRARIES += libm_gcc9.a libm_gcc9_std.a
+libm_gcc9_a_SOURCES = $(common_libm_src) $(common_libm_src_fr)
+libm_gcc9_a_CFLAGS = $(compiler_flags_nosub) -ftree-partial-pre --compiler=I386_GCC9 
+libm_gcc9_a_AR = $(top_builddir)/src/tree-panda-gcc --compiler=I386_GCC9 $(common_treegccflags) -C
+libm_gcc9_std_a_SOURCES = $(common_libm_src) $(common_libm_src_std)
+libm_gcc9_std_a_CFLAGS = $(compiler_flags_nosub) -ftree-partial-pre --compiler=I386_GCC9 
+libm_gcc9_std_a_AR = $(top_builddir)/src/tree-panda-gcc --compiler=I386_GCC9 $(common_treegccflags) -C
+
+pkglib_LIBRARIES += libm_gcc9_subnormals.a libm_gcc9_subnormals_std.a
+libm_gcc9_subnormals_a_SOURCES = $(common_libm_src) $(common_libm_src_fr)
+libm_gcc9_subnormals_a_CFLAGS = $(compiler_flags) -ftree-partial-pre --compiler=I386_GCC9 
+libm_gcc9_subnormals_a_AR = $(top_builddir)/src/tree-panda-gcc --compiler=I386_GCC9 $(common_treegccflags) -C
+libm_gcc9_subnormals_std_a_SOURCES = $(common_libm_src) $(common_libm_src_std)
+libm_gcc9_subnormals_std_a_CFLAGS = $(compiler_flags) -ftree-partial-pre --compiler=I386_GCC9 
+libm_gcc9_subnormals_std_a_AR = $(top_builddir)/src/tree-panda-gcc --compiler=I386_GCC9 $(common_treegccflags) -C
+endif
+
+
 if BUILD_I386_CLANG4
 pkglib_LIBRARIES += libm_clang4.a libm_clang4_std.a
 libm_clang4_a_SOURCES = $(common_libm_src) $(common_libm_src_fr)
