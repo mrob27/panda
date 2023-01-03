@@ -13,6 +13,7 @@ Makefile.in
 /autoscan.log
 /autoscan-*.log
 /aclocal.m4
+**/aclocal.m4
 /compile
 /config.guess
 /config.h.in
@@ -81,4 +82,5 @@ panda_release/
 **/Exercise3/simulate_main_kernel.sh
 **/Exercise3/synthesize_Synthesis_main_kernel.sh
 
+temp-20221212/
 

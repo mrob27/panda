@@ -262,6 +262,7 @@
 #include "config_I386_CPP6_EXE.hpp"
 #include "config_I386_CPP7_EXE.hpp"
 #include "config_I386_CPP8_EXE.hpp"
+#include "config_I386_CPP9_EXE.hpp"
 #include "config_I386_GCC45_EMPTY_PLUGIN.hpp"
 #include "config_I386_GCC45_EXE.hpp"
 #include "config_I386_GCC45_SSAVRP_PLUGIN.hpp"
@@ -335,6 +336,7 @@
 #include "config_I386_GPP6_EXE.hpp"
 #include "config_I386_GPP7_EXE.hpp"
 #include "config_I386_GPP8_EXE.hpp"
+#include "config_I386_GPP9_EXE.hpp"
 #include "config_I386_LLVM10_LINK_EXE.hpp"
 #include "config_I386_LLVM10_OPT_EXE.hpp"
 #include "config_I386_LLVM11_LINK_EXE.hpp"
@@ -2755,15 +2757,11 @@ CompilerWrapper::Compiler CompilerWrapper::GetCompiler() const
 #endif
 
 
-
-
-
-
 #if HAVE_I386_GCC9_COMPILER
    if(static_cast<int>(preferred_compiler) & static_cast<int>(CompilerWrapper_CompilerTarget::CT_I386_GCC9))
    {
       compiler.gcc = flag_cpp ? relocate_compiler_path(I386_GPP8_EXE) : relocate_compiler_path(I386_GCC9_EXE);
-      compiler.cpp = relocate_compiler_path(I386_CPP8_EXE);
+      compiler.cpp = relocate_compiler_path(I386_CPP9_EXE);
       compiler.extra_options = " -mlong-double-64 -D_FORTIFY_SOURCE=0 " + gcc_extra_options;
       if(optimization_flags.find("tree-vectorize") != optimization_flags.end() &&
          optimization_flags.find("tree-vectorize")->second)
