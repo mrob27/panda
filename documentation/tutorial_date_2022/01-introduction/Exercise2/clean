@@ -1,7 +1,8 @@
 #!/usr/bin/env bash 
+# .../Exercise2/clean
 printenv | sort
 rm -rf HLS_output/
 rm -rf panda-temp/
-rm -f icrc1.v icrc1.vhd test.xml
+rm -f matmul.v min_max.v minmax.c out.c testbench.xml
 rm -f mem*xml bambu_results_*
 rm -f results.txt simulate*.sh synthesize*.sh 
