@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<function>
+   <testbench A="{0}"
+              B="{0}"
+              C="{0}"
+              size="1"/>
+</function>
